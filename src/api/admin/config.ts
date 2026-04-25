@@ -6,30 +6,6 @@ import { request } from '@/utils/modules/request';
  */
 
 /**
- * 配置项接口
- */
-export interface ConfigItem {
-  /** 配置ID */
-  id: number;
-  /** 配置名称 */
-  title: string;
-  /** 配置标识 */
-  name: string;
-  /** 配置分组 */
-  group: string;
-  /** 配置类型 */
-  type: string;
-  /** 配置值 */
-  value: any;
-  /** 配置描述 */
-  description: string;
-  /** 配置排序 */
-  sort: number;
-  /** 配置状态 */
-  status: number;
-}
-
-/**
  * 获取配置分组列表
  * @description 调用后端接口获取配置分组列表
  * @returns 返回后端接口响应数据，包含配置分组列表
@@ -61,15 +37,15 @@ export const getConfigGroupData = async (params: { group: string | number }) => 
 /**
  * 保存配置分组数据
  * @description 调用后端接口保存配置分组的配置数据
- * @param params - 请求参数
- * @param params.config - 配置数据对象
+ * @param data - 请求参数
+ * @param data.config - 配置数据对象
  * @returns 返回后端接口响应数据，包含操作结果
  */
-export const saveConfigGroupData = async (params: { config: Record<string, any> }) => {
+export const saveConfigGroupData = async (data: { config: Record<string, any> }) => {
   const res = await request({
     url: 'admin/config/group',
     method: 'POST',
-    data: params
+    data
   });
   return res;
 };
@@ -124,11 +100,11 @@ export const saveConfig = async (data: Partial<ConfigItem>) => {
  * @param params.id - 配置ID
  * @returns 返回后端接口响应数据，包含操作结果
  */
-export const deleteConfig = async (params: { id: number }) => {
+export const deleteConfig = async (data: { id: number }) => {
   const res = await request({
     url: 'admin/config/del',
     method: 'POST',
-    data: params
+    data
   });
   return res;
 };

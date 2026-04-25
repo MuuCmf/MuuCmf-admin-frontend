@@ -43,6 +43,13 @@ declare global {
   }
 
   /**
+   * 配置分组数据结构
+   */
+  export interface ConfigGroup {
+    [key: string]: string;
+  }
+
+  /**
    * 配置项
    */
   interface ConfigItem {
@@ -221,4 +228,4 @@ declare global {
     headers?: Record<string, string>;
   }
 }
-export {};
+export { };

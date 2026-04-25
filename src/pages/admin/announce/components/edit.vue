@@ -69,22 +69,7 @@ import { Close, Plus, Loading } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
 import { request } from '@/utils/modules/request';
 import Editor from '@/components/config/Editor.vue';
-
-interface AnnounceInfo {
-  id?: number;
-  title: string;
-  content: string;
-  status: number;
-  sort: number;
-  teminal: string;
-  type: number;
-  type_str: string;
-  cover?: string;
-  cover_80?: string;
-  cover_120?: string;
-  cover_200?: string;
-  cover_400?: string;
-}
+import { saveAnnounce, type AnnounceInfo } from '@/api/admin/announce';
 
 interface Props {
   announce: AnnounceInfo;
@@ -227,18 +212,13 @@ const handleSubmit = async () => {
 
     submitLoading.value = true;
     try {
-      const url = 'admin/announce/edit';
       const data = { ...formData };
 
       if (props.announce.id) {
         data.id = props.announce.id;
       }
 
-      const res = await request({
-        url,
-        method: 'POST',
-        data
-      });
+      const res = await saveAnnounce(data);
 
       if (res.code === 200) {
         ElMessage.success(props.announce.id ? '编辑成功' : '添加成功');

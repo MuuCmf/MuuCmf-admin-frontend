@@ -94,26 +94,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
-
-// 行为日志数据结构
-interface ActionLogItem {
-  id: number;
-  uid: number;
-  action_id: number;
-  user_info: {
-    nickname: string;
-  };
-  action: {
-    title: string;
-  };
-  action_ip: string;
-  remark: string;
-  create_time: string;
-  create_time_str?: string;
-}
+import { getActionLogList, deleteActionLog, clearActionLog } from '@/api';
+import type { ActionLogItem } from '@/api';
 
 // 响应式数据
 const loading = ref(false);
@@ -163,11 +147,7 @@ const getList = async () => {
       select: searchForm.select
     };
 
-    const res = await request({
-      url: 'admin/action/log',
-      method: 'GET',
-      data: params
-    });
+    const res = await getActionLogList(params);
 
     if (res.code === 200) {
       tableData.value = res.data.data || [];
@@ -237,12 +217,8 @@ const handleSelectionChange = (val: ActionLogItem[]) => {
 // 通用删除方法
 const deleteLog = async (ids: number[]) => {
   try {
-    const res = await request({
-      url: 'admin/action/log/delete',
-      method: 'POST',
-      data: {
-        ids: ids.join(',')
-      }
+    const res = await deleteActionLog({
+      ids: ids.join(',')
     });
 
     if (res.code === 200) {
@@ -308,10 +284,7 @@ const handleClear = async () => {
       type: 'warning'
     });
 
-    const res = await request({
-      url: 'admin/action/clear',
-      method: 'POST'
-    });
+    const res = await clearActionLog();
 
     if (res.code === 200) {
       ElMessage.success('日志清空成功');

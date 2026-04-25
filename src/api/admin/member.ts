@@ -6,25 +6,6 @@ import { request } from '@/utils/modules/request';
  */
 
 /**
- * 用户信息接口
- */
-export interface UserInfo {
-  uid: number;
-  username: string;
-  nickname: string;
-  avatar64: string;
-  status: number;
-  email: string;
-  phone: string;
-  auth: number;
-  reg_time: string;
-  last_login_time: string;
-  last_login_ip: string;
-  login_count: number;
-  group_id: number;
-}
-
-/**
  * 获取用户列表
  * @description 调用后端接口获取用户列表数据
  * @param params - 查询参数
@@ -45,16 +26,16 @@ export const getMemberList = async (params: { page: number; rows: number; keywor
 /**
  * 修改用户状态
  * @description 调用后端接口修改用户状态
- * @param params - 请求参数
- * @param params.uid - 用户ID或ID数组
- * @param params.status - 状态值 (1: 启用, 0: 禁用, -1: 删除)
+ * @param data - 请求参数
+ * @param data.uid - 用户ID或ID数组
+ * @param data.status - 状态值 (1: 启用, 0: 禁用, -1: 删除)
  * @returns 返回后端接口响应数据，包含操作结果
  */
-export const updateMemberStatus = async (params: { uid: number | number[]; status: number }) => {
+export const updateMemberStatus = async (data: { uid: number | number[]; status: number }) => {
   const res = await request({
     url: 'admin/member/status',
     method: 'POST',
-    data: params
+    data
   });
   return res;
 };
@@ -62,15 +43,15 @@ export const updateMemberStatus = async (params: { uid: number | number[]; statu
 /**
  * 重置用户密码
  * @description 调用后端接口重置用户密码为默认值
- * @param params - 请求参数
- * @param params.uid - 用户ID或ID数组
+ * @param data - 请求参数
+ * @param data.uid - 用户ID或ID数组
  * @returns 返回后端接口响应数据，包含操作结果
  */
-export const resetMemberPassword = async (params: { uid: number | number[] }) => {
+export const resetMemberPassword = async (data: { uid: number | number[] }) => {
   const res = await request({
     url: 'admin/member/initpass',
     method: 'POST',
-    data: params
+    data
   });
   return res;
 };

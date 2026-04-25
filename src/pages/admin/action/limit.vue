@@ -82,28 +82,11 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import LimitDrawer from './components/LimitDrawer.vue';
-
-interface LimitItem {
-  id: number;
-  title: string;
-  name: string;
-  frequency: number;
-  time_number: number;
-  time_unit: string;
-  punish: string;
-  if_message: string | number;
-  message_content: string;
-  action_list: string;
-  status: number;
-  time_str?: string;
-  module?: string;
-  action_list_info?: string;
-  punish_info?: string;
-}
+import { getLimitList, updateLimitStatus } from '@/api';
+import type { LimitItem } from '@/api';
 
 const loading = ref(false);
 const tableData = ref<LimitItem[]>([]);
@@ -132,11 +115,7 @@ const getList = async () => {
       action: searchForm.action
     };
 
-    const res = await request({
-      url: 'admin/action/limit',
-      method: 'GET',
-      data: params
-    });
+    const res = await getLimitList(params);
 
     if (res.code === 200) {
       tableData.value = res.data.data || [];
@@ -206,13 +185,9 @@ const handleDelete = async (row: LimitItem) => {
       type: 'warning'
     });
 
-    const res = await request({
-      url: 'admin/action/limitStatus',
-      method: 'POST',
-      data: {
-        ids: row.id,
-        status: -1
-      }
+    const res = await updateLimitStatus({
+      ids: row.id,
+      status: -1
     });
 
     if (res.code === 200) {
@@ -231,13 +206,9 @@ const handleDelete = async (row: LimitItem) => {
 
 const handleStatusChange = async (row: LimitItem) => {
   try {
-    const res = await request({
-      url: 'admin/action/limit/status',
-      method: 'POST',
-      data: {
-        ids: row.id,
-        status: row.status
-      }
+    const res = await updateLimitStatus({
+      ids: row.id,
+      status: row.status
     });
 
     if (res.code !== 200) {
@@ -261,13 +232,9 @@ const batchEnable = async () => {
 
   try {
     const ids = selectedRows.value.map(row => row.id);
-    const res = await request({
-      url: 'admin/action/limit/status',
-      method: 'POST',
-      data: {
-        ids: ids.join(','),
-        status: 1
-      }
+    const res = await updateLimitStatus({
+      ids: ids.join(','),
+      status: 1
     });
 
     if (res.code === 200) {
@@ -290,13 +257,9 @@ const batchDisable = async () => {
 
   try {
     const ids = selectedRows.value.map(row => row.id);
-    const res = await request({
-      url: 'admin/action/limit/status',
-      method: 'POST',
-      data: {
-        ids: ids.join(','),
-        status: 0
-      }
+    const res = await updateLimitStatus({
+      ids: ids.join(','),
+      status: 0
     });
 
     if (res.code === 200) {
@@ -325,13 +288,9 @@ const batchDelete = async () => {
     });
 
     const ids = selectedRows.value.map(row => row.id);
-    const res = await request({
-      url: 'admin/action/limit/status',
-      method: 'POST',
-      data: {
-        ids: ids.join(','),
-        status: -1
-      }
+    const res = await updateLimitStatus({
+      ids: ids.join(','),
+      status: -1
     });
 
     if (res.code === 200) {

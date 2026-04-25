@@ -66,9 +66,9 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage } from 'element-plus';
-import type { RuleItem, ActionItem } from '../types';
+import { editAction, getScoreTypeList as fetchScoreTypeList } from '@/api';
+import type { RuleItem, ActionItem } from '@/api';
 
 // Props
 const props = defineProps<{
@@ -126,10 +126,7 @@ const resetForm = () => {
 // 获取积分类型列表
 const getScoreTypeList = async () => {
   try {
-    const res = await request({
-      url: 'admin/score/type',
-      method: 'GET'
-    });
+    const res = await fetchScoreTypeList();
     if (res.code === 200) {
       scoreTypeList.value = res.data || [];
     }
@@ -179,11 +176,7 @@ const handleSubmit = async () => {
       submitData.rule = [];
     }
 
-    const res = await request({
-      url: 'admin/action/edit',
-      method: 'POST',
-      data: submitData
-    });
+    const res = await editAction(submitData);
 
     if (res.code === 200) {
       ElMessage.success(formData.id ? '更新成功' : '添加成功');

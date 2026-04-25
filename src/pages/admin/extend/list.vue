@@ -88,35 +88,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { Plus } from '@element-plus/icons-vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import ExtendEdit from './components/edit.vue';
 import { useScrollReset } from '@/composables/useScrollReset';
+import { getExtendGroupList, getExtendList, deleteExtend } from '@/api';
 
 // 滚动重置
 const { resetScrollTop } = useScrollReset();
 
-interface ConfigGroup {
-  [key: string]: string;
-}
-
-interface ExtendInfo {
-  id: number;
-  name: string;
-  title: string;
-  type: string;
-  type_name: string;
-  group: number;
-  group_name: string;
-  extra: string;
-  value: string;
-  remark: string;
-  sort: number;
-}
-
 // 扩展列表响应式数据
 const group = ref<ConfigGroup>({});
-const list = ref<ExtendInfo[]>([]);
+const list = ref<ConfigItem[]>([]);
 const loading = ref(false);
 const page = ref<number>(1);
 const pageSize = ref<number>(20);
@@ -125,7 +107,7 @@ const searchKeyword = ref<string>('');
 const searchGroup = ref<string>('');
 
 const editDrawer = ref(false);
-const selectedExtend = ref<ExtendInfo>({} as ExtendInfo);
+const selectedExtend = ref<ConfigItem>({} as ConfigItem);
 
 // 获取配置类型标签类型
 const getTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info' | 'danger' => {
@@ -149,10 +131,7 @@ const getTypeTagType = (type: string): 'primary' | 'success' | 'warning' | 'info
 // 获取配置分组数据
 const getGroup = async () => {
   try {
-    const res = await request({
-      url: 'admin/extend/group/list',
-      method: 'GET'
-    });
+    const res = await getExtendGroupList();
     if (res.code === 200) {
       group.value = res.data;
     }
@@ -166,15 +145,11 @@ const getGroup = async () => {
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/extend/list',
-      data: {
-        page: page.value,
-        rows: pageSize.value,
-        keyword: searchKeyword.value,
-        group: searchGroup.value
-      },
-      method: 'GET'
+    const res = await getExtendList({
+      page: page.value,
+      rows: pageSize.value,
+      keyword: searchKeyword.value,
+      group: searchGroup.value
     });
 
     if (res.code === 200) {
@@ -220,12 +195,12 @@ const handlePageChange = () => {
 
 // 添加扩展
 const handleAdd = () => {
-  selectedExtend.value = {} as ExtendInfo;
+  selectedExtend.value = {} as ConfigItem;
   editDrawer.value = true;
 };
 
 // 编辑扩展
-const handleEdit = (item: ExtendInfo) => {
+const handleEdit = (item: ConfigItem) => {
   selectedExtend.value = { ...item };
   editDrawer.value = true;
 };
@@ -236,7 +211,7 @@ const handleEditSuccess = () => {
 };
 
 // 删除扩展
-const handleDelete = (item: ExtendInfo) => {
+const handleDelete = (item: ConfigItem) => {
   ElMessageBox.confirm(`确定要删除扩展 "${item.title}" 吗？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
@@ -244,12 +219,8 @@ const handleDelete = (item: ExtendInfo) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/extend/del',
-          method: 'POST',
-          data: {
-            id: item.id
-          }
+        const res = await deleteExtend({
+          id: item.id
         });
 
         if (res.code === 200) {

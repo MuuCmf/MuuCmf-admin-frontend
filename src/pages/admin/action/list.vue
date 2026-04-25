@@ -79,11 +79,11 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import ActionDrawer from './components/ActionDrawer.vue';
 import type { ActionItem } from './types';
+import { getActionList, updateActionStatus } from '@/api';
 
 // 响应式数据
 const loading = ref(false);
@@ -119,11 +119,7 @@ const getList = async () => {
       status: searchForm.status
     };
 
-    const res = await request({
-      url: 'admin/action/list',
-      method: 'GET',
-      data: params
-    });
+    const res = await getActionList(params);
 
     if (res.code === 200) {
       tableData.value = res.data.data || [];
@@ -197,13 +193,9 @@ const handleDelete = async (row: ActionItem) => {
       type: 'warning'
     });
 
-    const res = await request({
-      url: 'admin/action/status',
-      method: 'POST',
-      data: {
-        ids: row.id,
-        status: -1
-      }
+    const res = await updateActionStatus({
+      ids: row.id!,
+      status: -1
     });
 
     if (res.code === 200) {
@@ -223,13 +215,9 @@ const handleDelete = async (row: ActionItem) => {
 // 切换状态
 const handleStatusChange = async (row: ActionItem) => {
   try {
-    const res = await request({
-      url: 'admin/action/status',
-      method: 'POST',
-      data: {
-        ids: row.id,
-        status: row.status
-      }
+    const res = await updateActionStatus({
+      ids: row.id!,
+      status: row.status
     });
 
     if (res.code !== 200) {
@@ -256,13 +244,9 @@ const batchEnable = async () => {
 
   try {
     const ids = selectedRows.value.map(row => row.id);
-    const res = await request({
-      url: 'admin/action/status',
-      method: 'POST',
-      data: {
-        ids: ids.join(','),
-        status: 1
-      }
+    const res = await updateActionStatus({
+      ids: ids.join(','),
+      status: 1
     });
 
     if (res.code === 200) {
@@ -286,13 +270,9 @@ const batchDisable = async () => {
 
   try {
     const ids = selectedRows.value.map(row => row.id);
-    const res = await request({
-      url: 'admin/action/status',
-      method: 'POST',
-      data: {
-        ids: ids.join(','),
-        status: 0
-      }
+    const res = await updateActionStatus({
+      ids: ids.join(','),
+      status: 0
     });
 
     if (res.code === 200) {
@@ -322,13 +302,9 @@ const batchDelete = async () => {
     });
 
     const ids = selectedRows.value.map(row => row.id);
-    const res = await request({
-      url: 'admin/action/status',
-      method: 'POST',
-      data: {
-        ids: ids.join(','),
-        status: -1
-      }
+    const res = await updateActionStatus({
+      ids: ids.join(','),
+      status: -1
     });
 
     if (res.code === 200) {

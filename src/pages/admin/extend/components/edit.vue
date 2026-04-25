@@ -74,23 +74,11 @@
 import { ref, reactive, watch, computed } from 'vue';
 import { Close } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
-import { request } from '@/utils/modules/request';
+import { editExtend } from '@/api';
 import { typeOptions } from '@/utils/modules/config';
 
-interface ExtendInfo {
-  id: number;
-  name: string;
-  title: string;
-  type: string;
-  group: number;
-  extra: string;
-  value: string;
-  remark: string;
-  sort: number;
-}
-
 interface Props {
-  extend: ExtendInfo;
+  extend: ConfigItem;
   group: Record<string, string>;
 }
 
@@ -175,18 +163,13 @@ const handleSubmit = async () => {
 
     submitLoading.value = true;
     try {
-      const url = 'admin/extend/edit';
       const data = { ...formData };
 
       if (props.extend.id) {
         data.id = props.extend.id;
       }
 
-      const res = await request({
-        url,
-        method: 'POST',
-        data
-      });
+      const res = await editExtend(data);
 
       if (res.code === 200) {
         ElMessage.success(props.extend.id ? '编辑成功' : '添加成功');

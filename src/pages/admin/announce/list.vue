@@ -97,24 +97,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import AnnounceEdit from './components/edit.vue';
-
-interface AnnounceInfo {
-  id?: number;
-  title: string;
-  content: string;
-  status: number;
-  sort: number;
-  teminal: string;
-  type: number;
-  type_str: string;
-  cover?: string;
-  cover_200?: string;
-  create_time?: string;
-  create_time_str?: string;
-}
+import { getAnnounceList, updateAnnounceStatus, type AnnounceInfo } from '@/api/admin/announce';
 
 const list = ref<AnnounceInfo[]>([]);
 const loading = ref(false);
@@ -134,21 +119,17 @@ const selectedAnnounce = ref<AnnounceInfo>({} as AnnounceInfo);
 const getList = async () => {
   loading.value = true;
   try {
-    let data: Record<string, any> = {
+    let params: Record<string, any> = {
       page: page.value,
       rows: pageSize.value,
       keyword: searchForm.value.keyword
     };
 
     if (searchForm.value.status !== '') {
-      data.status = searchForm.value.status;
+      params.status = searchForm.value.status;
     }
 
-    const res = await request({
-      url: 'admin/announce/list',
-      data: data,
-      method: 'GET'
-    });
+    const res = await getAnnounceList(params as { page: number; rows: number; keyword?: string; status?: string });
 
     if (res.code === 200) {
       list.value = res.data.data || [];
@@ -205,13 +186,9 @@ const handleStatusChange = async (item: AnnounceInfo) => {
   const originalStatus = item.status === 1 ? 0 : 1;
 
   try {
-    const res = await request({
-      url: 'admin/announce/status',
-      method: 'POST',
-      data: {
-        ids: [item.id],
-        status: item.status
-      }
+    const res = await updateAnnounceStatus({
+      ids: [item.id!],
+      status: item.status
     });
 
     if (res.code === 200) {
@@ -243,13 +220,9 @@ const batchEnable = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/announce/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value,
-            status: 1
-          }
+        const res = await updateAnnounceStatus({
+          ids: selectedIds.value,
+          status: 1
         });
         if (res.code === 200) {
           ElMessage.success('批量启用成功');
@@ -277,13 +250,9 @@ const batchDisable = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/announce/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value,
-            status: 0
-          }
+        const res = await updateAnnounceStatus({
+          ids: selectedIds.value,
+          status: 0
         });
         if (res.code === 200) {
           ElMessage.success('批量禁用成功');
@@ -311,13 +280,9 @@ const batchDelete = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/announce/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value,
-            status: -1
-          }
+        const res = await updateAnnounceStatus({
+          ids: selectedIds.value,
+          status: -1
         });
         if (res.code === 200) {
           ElMessage.success('批量删除成功');
@@ -347,13 +312,9 @@ const handleDelete = (item: AnnounceInfo) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/announce/status',
-          method: 'POST',
-          data: {
-            ids: item.id,
-            status: -1
-          }
+        const res = await updateAnnounceStatus({
+          ids: item.id!,
+          status: -1
         });
 
         if (res.code === 200) {

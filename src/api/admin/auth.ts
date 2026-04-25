@@ -37,16 +37,16 @@ export const getGroupList = async (params: { page: number; rows: number; keyword
 /**
  * 修改权限组状态
  * @description 调用后端接口启用、禁用或删除权限组
- * @param params - 请求参数
- * @param params.id - 权限组ID
- * @param params.status - 状态值 (1: 启用, 0: 禁用, -1: 删除)
+ * @param data - 请求参数
+ * @param data.id - 权限组ID
+ * @param data.status - 状态值 (1: 启用, 0: 禁用, -1: 删除)
  * @returns 返回后端接口响应数据，包含操作结果
  */
-export const updateGroupStatus = async (params: { id: number; status: number }) => {
+export const updateGroupStatus = async (data: { id: number; status: number }) => {
   const res = await request({
     url: 'admin/auth/group/status',
     method: 'POST',
-    data: params
+    data
   });
   return res;
 };
@@ -100,16 +100,16 @@ export const getPermissionTree = async (params: { group_id: number }) => {
 /**
  * 保存权限分配
  * @description 调用后端接口保存权限组分配的权限
- * @param params - 请求参数
- * @param params.id - 权限组ID
- * @param params.rules - 权限ID数组
+ * @param data - 请求参数
+ * @param data.id - 权限组ID
+ * @param data.rules - 权限ID数组
  * @returns 返回后端接口响应数据，包含操作结果
  */
-export const savePermissions = async (params: { id: number; rules: number[] }) => {
+export const savePermissions = async (data: { id: number; rules: number[] }) => {
   const res = await request({
     url: 'admin/auth/access',
     method: 'POST',
-    data: params
+    data
   });
   return res;
 };

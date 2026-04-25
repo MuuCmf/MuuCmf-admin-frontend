@@ -92,25 +92,16 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
-
-// 积分类型数据结构
-interface ScoreTypeItem {
-  id: number;
-  title: string;
-  unit: string;
-  status: number;
-}
-
-// 表单数据结构
-interface FormData {
-  id?: number;
-  title: string;
-  unit: string;
-  status: number;
-}
+import {
+  getScoreTypeList,
+  editScoreType,
+  deleteScoreType,
+  updateScoreTypeStatus,
+  type ScoreTypeItem,
+  type ScoreTypeFormData
+} from '@/api';
 
 // 响应式数据
 const list = ref<ScoreTypeItem[]>([]);
@@ -124,7 +115,7 @@ const editDrawerVisible = ref(false);
 const editDrawerTitle = ref('');
 const formRef = ref();
 const submitLoading = ref(false);
-const formData = reactive<FormData>({
+const formData = reactive<ScoreTypeFormData>({
   title: '',
   unit: '',
   status: 1
@@ -150,11 +141,7 @@ const getList = async () => {
       keyword: searchForm.value.keyword
     };
 
-    const res = await request({
-      url: 'admin/score/type',
-      data: data,
-      method: 'GET'
-    });
+    const res = await getScoreTypeList(data);
 
     if (res.code === 200) {
       list.value = res.data || [];
@@ -225,11 +212,7 @@ const handleSubmit = async () => {
     await formRef.value.validate();
     submitLoading.value = true;
 
-    const res = await request({
-      url: 'admin/score/type/edit',
-      method: 'POST',
-      data: formData
-    });
+    const res = await editScoreType(formData);
 
     if (res.code === 200) {
       ElMessage.success(formData.id ? '更新成功' : '创建成功');
@@ -258,13 +241,7 @@ const handleDeleteType = async (item: ScoreTypeItem) => {
     });
 
     // 调用删除接口
-    const res = await request({
-      url: 'admin/score/type/delete',
-      method: 'POST',
-      data: {
-        ids: item.id
-      }
-    });
+    const res = await deleteScoreType({ ids: item.id });
 
     if (res.code === 200) {
       ElMessage.success('删除成功');
@@ -284,13 +261,9 @@ const handleDeleteType = async (item: ScoreTypeItem) => {
 const handleStatusChange = async (item: ScoreTypeItem) => {
   try {
     const actionText = item.status === 1 ? '启用' : '禁用';
-    const res = await request({
-      url: 'admin/score/type/status',
-      method: 'POST',
-      data: {
-        ids: item.id,
-        status: item.status
-      }
+    const res = await updateScoreTypeStatus({
+      ids: item.id,
+      status: item.status
     });
 
     if (res.code === 200) {

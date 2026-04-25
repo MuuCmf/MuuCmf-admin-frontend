@@ -129,39 +129,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
-
-interface AttachmentItem {
-  id: number;
-  filename: string;
-  type: string;
-  ext: string;
-  mime: string;
-  size: number;
-  driver: string;
-  driver_str: string;
-  create_time: string;
-  create_time_str: string;
-  user_info: {
-    id: number;
-    nickname: string;
-  };
-  url: string;
-  thumb?: {
-    thumb_100?: string;
-    thumb_200?: string;
-    thumb_300?: string;
-    thumb_400?: string;
-    thumb_500?: string;
-    thumb_600?: string;
-    thumb_700?: string;
-    thumb_800?: string;
-    thumb_original?: string;
-  };
-  md5: string;
-  sha1: string;
-}
+import { getAttachmentList, deleteAttachment, type AttachmentItem } from '@/api/admin/attachment';
 
 const page = ref(1);
 const rows = ref(20);
@@ -180,14 +149,10 @@ const previewFileInfo = ref<AttachmentItem>({} as AttachmentItem);
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/attachment/list',
-      method: 'GET',
-      data: {
-        page: page.value,
-        rows: rows.value,
-        ...searchForm.value
-      }
+    const res = await getAttachmentList({
+      page: page.value,
+      rows: rows.value,
+      ...searchForm.value
     });
     if (res.code === 200) {
       lists.value = res.data.data;
@@ -195,10 +160,6 @@ const getList = async () => {
     } else {
       ElMessage.error(res.msg || '获取附件列表失败');
     }
-
-    // 使用模拟数据
-    //lists.value = [mockData];
-    //total.value = 1;
   } catch (error) {
     ElMessage.error('获取附件列表失败');
     console.error(error);
@@ -258,12 +219,8 @@ const deleteFile = (id: number) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/attachment/del',
-          method: 'POST',
-          data: {
-            id: id
-          }
+        const res = await deleteAttachment({
+          id: id
         });
         if (res.code === 200) {
           ElMessage.success('文件删除成功');

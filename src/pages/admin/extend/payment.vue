@@ -4,7 +4,7 @@
       <div class="with-container">
         <div class="store-config-container">
           <!-- 上部分：配置项 -->
-          <div class="store-basic-config">
+          <div v-show="paymentConfigList.length > 0" class="store-basic-config">
             <h3 class="config-section-title">支付基本配置</h3>
             <el-form ref="formRef" :model="formData" label-width="150px" label-position="right">
               <el-form-item v-for="item in paymentConfigList" :key="item.id" :label="item.title">
@@ -14,6 +14,7 @@
                   :options="parseOptions(item.extra)"
                   :placeholder="item.remark"
                   :remark="item.remark"
+                  :url="item.value"
                 />
               </el-form-item>
             </el-form>
@@ -32,6 +33,7 @@
                         :options="parseOptions(item.extra)"
                         :placeholder="item.remark"
                         :remark="item.remark"
+                        :url="item.value"
                       />
                     </el-form-item>
                   </el-form>
@@ -48,6 +50,7 @@
                         :options="parseOptions(item.extra)"
                         :placeholder="item.remark"
                         :remark="item.remark"
+                        :url="item.value"
                       />
                     </el-form-item>
                   </el-form>
@@ -69,7 +72,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { request } from '@/utils/modules/request';
+import { getExtendList, saveExtendPayment } from '@/api';
 import {
   Num,
   String,
@@ -158,11 +161,7 @@ const handleSubmit = async () => {
 
   submitLoading.value = true;
   try {
-    const res = await request({
-      url: 'admin/extend/vod',
-      method: 'POST',
-      data: formData
-    });
+    const res = await saveExtendPayment(formData);
 
     if (res.code === 200) {
       ElMessage.success('保存成功');
@@ -182,13 +181,9 @@ const handleSubmit = async () => {
 const getExtendConfig = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/extend/list',
-      method: 'GET',
-      data: {
-        load: 'all',
-        group: groupParams
-      }
+    const res = await getExtendList({
+      load: 'all',
+      group: groupParams
     });
 
     if (res.code === 200) {

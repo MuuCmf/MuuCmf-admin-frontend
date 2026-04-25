@@ -8,6 +8,13 @@ export * from './admin/config';
 export * from './admin/menu';
 export * from './admin/member';
 export * from './admin/auth';
+export * from './admin/attachment';
+export * from './admin/announce';
+export * from './admin/authentication';
+export * from './admin/action';
+export * from './admin/score';
+export * from './admin/crontab';
+export * from './admin/extend';
 export * from './common';
 
 const api = axios.create({

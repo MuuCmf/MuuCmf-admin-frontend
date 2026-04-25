@@ -73,23 +73,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import SafeIcon from '@/components/SafeIcon.vue';
 import CrontabDrawer from './CrontabDrawer.vue';
-
-interface CrontabItem {
-  id: number;
-  title: string;
-  description: string;
-  execute: string;
-  cycle: string;
-  day: string;
-  hour: string;
-  minute: string;
-  status: number;
-  update_time: number;
-}
+import { getCrontabList, updateCrontabStatus, type CrontabItem } from '@/api';
 
 const page = ref(1);
 const rows = ref(20);
@@ -108,14 +95,11 @@ const editData = ref<CrontabItem | null>(null);
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/crontab/list',
-      method: 'GET',
-      data: {
-        page: page.value,
-        rows: rows.value,
-        ...searchForm.value
-      }
+    const res = await getCrontabList({
+      page: page.value,
+      rows: rows.value,
+      title: searchForm.value.title,
+      status: searchForm.value.status
     });
     if (res.code === 200) {
       lists.value = res.data.data;
@@ -185,13 +169,9 @@ const handleDelete = (id: number) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/crontab/status',
-          method: 'POST',
-          data: {
-            ids: id,
-            status: -1
-          }
+        const res = await updateCrontabStatus({
+          ids: id,
+          status: -1
         });
 
         if (res.code === 200) {
@@ -216,13 +196,9 @@ const handleToggleStatus = async (row: CrontabItem) => {
   const originalStatus = row.status === 1 ? 0 : 1;
 
   try {
-    const res = await request({
-      url: 'admin/crontab/status',
-      method: 'POST',
-      data: {
-        ids: [row.id],
-        status: row.status
-      }
+    const res = await updateCrontabStatus({
+      ids: [row.id],
+      status: row.status
     });
 
     if (res.code === 200) {

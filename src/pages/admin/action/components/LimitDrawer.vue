@@ -64,23 +64,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage } from 'element-plus';
-
-interface LimitData {
-  id?: number;
-  title: string;
-  name: string;
-  frequency: number;
-  time_number: number;
-  time_unit: string;
-  action_list: string;
-  punish: string;
-  if_message: string | number;
-  message_content: string;
-  status: number;
-  module?: string;
-}
+import { getActionList, editLimit } from '@/api';
 
 interface LimitFormData {
   id?: number;
@@ -100,7 +85,20 @@ interface LimitFormData {
 const props = defineProps<{
   visible: boolean;
   title: string;
-  data?: LimitData;
+  data?: {
+    id?: number;
+    title: string;
+    name: string;
+    frequency: number;
+    time_number: number;
+    time_unit: string;
+    action_list: string;
+    punish: string;
+    if_message: string | number;
+    message_content: string;
+    status: number;
+    module?: string;
+  };
 }>();
 
 const emit = defineEmits<{
@@ -174,13 +172,9 @@ const resetForm = () => {
 /**
  * 获取行为列表
  */
-const getActionList = async () => {
+const getActionListData = async () => {
   try {
-    const res = await request({
-      url: 'admin/action/list',
-      method: 'GET',
-      data: { page: 1, rows: 1000 }
-    });
+    const res = await getActionList({ page: 1, rows: 1000 });
     if (res.code === 200) {
       actionList.value = res.data.data || [];
     }
@@ -220,11 +214,7 @@ const handleSubmit = async () => {
       module: formData.module || 'admin'
     };
 
-    const res = await request({
-      url: 'admin/action/limit/edit',
-      method: 'POST',
-      data: submitData
-    });
+    const res = await editLimit(submitData);
 
     if (res.code === 200) {
       ElMessage.success(formData.id ? '更新成功' : '添加成功');
@@ -271,7 +261,7 @@ watch(
 );
 
 onMounted(() => {
-  getActionList();
+  getActionListData();
 });
 </script>
 

@@ -93,27 +93,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { useScrollReset } from '@/composables/useScrollReset';
-
-// 积分日志接口返回的数据结构
-interface ScoreLogItem {
-  id: number;
-  user_id: number;
-  user_info: {
-    uid: number;
-    nickname: string;
-    avatar?: string;
-  };
-  type: number; // 1: 积分, 2: 经验值
-  adjust_type: number; // 1: 增加, 2: 减少
-  value: number;
-  final_value: number;
-  description: string;
-  create_time: string;
-}
+import { getScoreLogList, clearScoreLog, type ScoreLogItem } from '@/api';
 
 // 响应式数据
 const list = ref<ScoreLogItem[]>([]);
@@ -131,20 +114,13 @@ const { scrollContainerRef, resetScrollTop } = useScrollReset();
 const getList = async () => {
   loading.value = true;
   try {
-    const data: Record<string, any> = {
+    const res = await getScoreLogList({
       page: page.value,
       rows: pageSize.value,
-      keyword: searchForm.value.keyword
-    };
-
-    const res = await request({
-      url: 'admin/score/log',
-      data: data,
-      method: 'GET'
+      keyword: searchForm.value.keyword || undefined
     });
 
     if (res.code === 200) {
-      console.log(res.data);
       // 处理返回数据
       list.value = res.data.data || [];
       total.value = res.data.total || 0;
@@ -193,10 +169,7 @@ const handleClearLog = async () => {
       dangerouslyUseHTMLString: true
     });
 
-    const res = await request({
-      url: 'admin/score/clear',
-      method: 'POST'
-    });
+    const res = await clearScoreLog();
 
     if (res.code === 200) {
       ElMessage.success('日志清空成功');

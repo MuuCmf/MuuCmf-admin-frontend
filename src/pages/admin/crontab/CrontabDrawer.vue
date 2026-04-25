@@ -46,21 +46,8 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage } from 'element-plus';
-
-interface CrontabItem {
-  id: number;
-  title: string;
-  description: string;
-  execute: string;
-  cycle: string;
-  day: string;
-  hour: string;
-  minute: string;
-  status: number;
-  update_time: number;
-}
+import { editCrontab, type CrontabItem } from '@/api';
 
 interface Props {
   visible: boolean;
@@ -199,11 +186,7 @@ const handleSubmit = async () => {
   try {
     await formRef.value.validate();
 
-    const res = await request({
-      url: 'admin/crontab/edit',
-      method: 'POST',
-      data: form.value
-    });
+    const res = await editCrontab(form.value);
 
     if (res.code === 200) {
       ElMessage.success(form.value.id ? '任务更新成功' : '任务添加成功');

@@ -151,72 +151,76 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * 认证管理页面组件
+ * @description 负责用户实名认证的列表展示、审核等功能
+ */
+
 import { ref, reactive, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage } from 'element-plus';
+import { getAuthenticationList, verifyAuthentication, type AuthenticationItem } from '@/api/admin/authentication';
 
-interface AuthenticationItem {
-  id: number;
-  uid: number;
-  username: string;
-  nickname: string;
-  email: string;
-  mobile: string;
-  avatar: string;
-  avatar64: string;
-  avatar128: string;
-  avatar256: string;
-  avatar512: string;
-  card_type: number;
-  card_type_str: string;
-  front: string;
-  front_original: string;
-  back: string;
-  back_original: string;
-  status: number;
-  status_str: string;
-  reason: string;
-  create_time: number;
-  create_time_str: string;
-  update_time: number;
-  update_time_str: string;
-}
-
+/** 加载状态 */
 const loading = ref(false);
+/** 认证列表数据 */
 const tableData = ref<AuthenticationItem[]>([]);
-// 未审核的认证数量
+/** 未审核的认证数量 */
 const unVerify = ref<number>(0);
-// 审核未通过的认证数量
+/** 审核未通过的认证数量 */
 const failVerify = ref<number>(0);
+/** 详情对话框显示状态 */
 const viewDialogVisible = ref(false);
 
+/** 搜索表单数据 */
 const searchForm = reactive({
+  /** 搜索关键词 */
   keyword: '',
+  /** 状态过滤 */
   status: 'all'
 });
 
+/** 当前激活的标签页 */
 const activeTab = ref('all');
 
+/** 分页数据 */
 const pagination = reactive({
+  /** 当前页码 */
   current: 1,
+  /** 每页条数 */
   size: 20,
+  /** 总条数 */
   total: 0
 });
 
+/** 当前选中的行数据 */
 const currentRow = ref<AuthenticationItem | null>(null);
+/** 审核表单引用 */
 const verifyFormRef = ref();
+/** 审核加载状态 */
 const verifyLoading = ref(false);
+/** 审核表单数据 */
 const verifyForm = reactive({
+  /** 用户ID */
   uid: 0,
+  /** 用户ID */
   id: 0,
+  /** 审核状态: 2-通过, -1-拒绝 */
   status: 2,
+  /** 拒绝原因 */
   reason: ''
 });
 
+/** 审核表单验证规则 */
 const verifyFormRules = reactive({
+  /** 拒绝原因验证规则 */
   reason: [{ required: true, message: '请输入拒绝原因', trigger: 'blur' }]
 });
 
+/**
+ * 获取状态对应的标签类型
+ * @param status - 状态值
+ * @returns 对应的标签类型: success-成功, warning-警告, danger-危险, info-信息
+ */
 const getStatusType = (status: number) => {
   switch (status) {
     case 2:
@@ -230,6 +234,10 @@ const getStatusType = (status: number) => {
   }
 };
 
+/**
+ * 获取认证列表
+ * @description 调用后端接口获取认证列表数据
+ */
 const getList = async () => {
   loading.value = true;
   try {
@@ -240,11 +248,7 @@ const getList = async () => {
       status: searchForm.status
     };
 
-    const res = await request({
-      url: 'admin/Authentication/list',
-      method: 'GET',
-      data: params
-    });
+    const res = await getAuthenticationList(params);
 
     if (res.code === 200) {
       tableData.value = res.data.data || [];
@@ -263,17 +267,30 @@ const getList = async () => {
   }
 };
 
+/**
+ * 搜索处理函数
+ * @description 重置页码并重新获取列表
+ */
 const handleSearch = () => {
   pagination.current = 1;
   getList();
 };
 
+/**
+ * 标签页切换处理函数
+ * @param tabName - 标签页名称
+ * @description 根据标签页名称设置状态过滤条件并重新获取列表
+ */
 const handleTabChange = (tabName: string | number) => {
   searchForm.status = String(tabName);
   pagination.current = 1;
   getList();
 };
 
+/**
+ * 重置处理函数
+ * @description 重置搜索条件和标签页并重新搜索
+ */
 const handleReset = () => {
   searchForm.keyword = '';
   searchForm.status = 'all';
@@ -281,17 +298,32 @@ const handleReset = () => {
   handleSearch();
 };
 
+/**
+ * 分页大小改变处理函数
+ * @param size - 新的每页条数
+ * @description 更新分页大小并重新获取列表
+ */
 const handleSizeChange = (size: number) => {
   pagination.size = size;
   pagination.current = 1;
   getList();
 };
 
+/**
+ * 页码改变处理函数
+ * @param current - 新的页码
+ * @description 更新页码并重新获取列表
+ */
 const handleCurrentChange = (current: number) => {
   pagination.current = current;
   getList();
 };
 
+/**
+ * 审核处理函数
+ * @param row - 当前行数据
+ * @description 打开审核对话框并初始化表单数据
+ */
 const handleVerify = (row: AuthenticationItem) => {
   currentRow.value = row;
   verifyForm.uid = row.uid;
@@ -301,6 +333,10 @@ const handleVerify = (row: AuthenticationItem) => {
   viewDialogVisible.value = true;
 };
 
+/**
+ * 提交审核处理函数
+ * @description 调用后端接口提交审核结果
+ */
 const handleVerifySubmit = async () => {
   if (!verifyFormRef.value) return;
 
@@ -311,11 +347,7 @@ const handleVerifySubmit = async () => {
 
     verifyLoading.value = true;
 
-    const res = await request({
-      url: 'admin/Authentication/verify',
-      method: 'POST',
-      data: verifyForm
-    });
+    const res = await verifyAuthentication(verifyForm);
 
     if (res.code === 200) {
       ElMessage.success('审核成功');
@@ -334,6 +366,10 @@ const handleVerifySubmit = async () => {
   }
 };
 
+/**
+ * 组件挂载钩子
+ * @description 组件挂载时获取认证列表
+ */
 onMounted(() => {
   getList();
 });
