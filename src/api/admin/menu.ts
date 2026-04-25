@@ -15,7 +15,7 @@ export const getMenuTree = async (app: string = 'admin') => {
   const res = await request<MenuItem[]>({
     url: 'admin/menu/tree',
     method: 'GET',
-    data: { app }
+    params: { app }
   });
   return res;
 };

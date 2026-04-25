@@ -11,7 +11,7 @@ export const getMessageList = async (params: {
 }) => {
   const res = await request({
     url: 'admin/message/list',
-    data: params,
+    params,
     method: 'GET'
   });
   return res;

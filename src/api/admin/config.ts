@@ -53,7 +53,7 @@ export const getConfigGroupData = async (params: { group: string | number }) => 
   const res = await request({
     url: 'admin/config/group',
     method: 'GET',
-    data: params
+    params
   });
   return res;
 };
@@ -88,7 +88,7 @@ export const getConfigList = async (params: { page: number; rows: number; keywor
   const res = await request({
     url: 'admin/config/list',
     method: 'GET',
-    data: params
+    params
   });
   return res;
 };

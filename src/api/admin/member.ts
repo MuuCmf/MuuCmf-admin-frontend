@@ -1,5 +1,4 @@
 import { request } from '@/utils/modules/request';
-import type { GroupInfo } from '@/api/admin/auth';
 
 /**
  * 会员管理 API
@@ -38,7 +37,7 @@ export const getMemberList = async (params: { page: number; rows: number; keywor
   const res = await request({
     url: 'admin/member/index',
     method: 'GET',
-    data: params
+    params
   });
   return res;
 };
@@ -120,7 +119,7 @@ export const getMemberDetail = async (params: { uid: number }) => {
   const res = await request({
     url: 'admin/member/detail',
     method: 'GET',
-    data: params
+    params
   });
   return res;
 };

@@ -29,7 +29,7 @@ export const getGroupList = async (params: { page: number; rows: number; keyword
   const res = await request({
     url: 'admin/auth/group/list',
     method: 'GET',
-    params: params
+    params
   });
   return res;
 };
@@ -92,7 +92,7 @@ export const getPermissionTree = async (params: { group_id: number }) => {
   }>({
     url: 'admin/auth/access',
     method: 'GET',
-    data: params
+    params
   });
   return res;
 };

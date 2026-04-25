@@ -138,9 +138,13 @@ instance.interceptors.response.use(
 const request = <T = any>(option: RequestConfig): Promise<ResponseData<T>> => {
   const method = option.method?.toLowerCase() || 'get';
   if (method === 'get') {
+    // 构建包含参数的 URL，然后清空 params 和 data 以避免重复
     option.url = buildUrl(option.url, { ...option.params, ...option.data });
+    option.params = undefined;
+    option.data = undefined;
   } else {
     option.url = buildUrl(option.url, option.params);
+    option.params = undefined;
   }
 
   return instance.request(option) as Promise<ResponseData<T>>;

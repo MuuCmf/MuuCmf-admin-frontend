@@ -28,7 +28,7 @@ export const getModuleInfo = async (app: string) => {
   const res = await request({
     url: 'admin/module/info',
     method: 'GET',
-    data: { app }
+    params: { app }
   });
   return res;
 };

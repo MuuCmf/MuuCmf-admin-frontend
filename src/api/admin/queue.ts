@@ -10,7 +10,7 @@ export const getQueueList = async (params: {
   const res = await request({
     url: 'admin/queue/list',
     method: 'GET',
-    data: params
+    params
   });
   return res;
 };
@@ -35,7 +35,7 @@ export const getQueueMessages = async (params: { queue_id: number; limit: number
   const res = await request({
     url: 'admin/queue/messages',
     method: 'GET',
-    data: params
+    params
   });
   return res;
 };

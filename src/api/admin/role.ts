@@ -7,7 +7,7 @@ export const getRoleUserList = (params: any) => {
   return request({
     url: 'admin/role/list',
     method: 'GET',
-    data: params
+    params
   });
 };
 
@@ -18,7 +18,7 @@ export const getRoleList = (params: any) => {
   return request({
     url: 'admin/role/list',
     method: 'GET',
-    data: params
+    params
   });
 };
 
@@ -84,7 +84,7 @@ export const getRoleGroupList = (params: any) => {
   return request({
     url: 'admin/role/group',
     method: 'GET',
-    data: params
+    params
   });
 };
 
