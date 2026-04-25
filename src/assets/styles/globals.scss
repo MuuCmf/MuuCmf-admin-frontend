@@ -1,0 +1,85 @@
+
+@use './variables' as *;
+
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  overflow-y: hidden;
+}
+
+.text-ellipsis {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: -webkit-box !important;
+  line-clamp: 1;
+  -webkit-line-clamp: 1; //文字上限行
+  -webkit-box-orient: vertical;
+}
+
+.text-ellipsis-2 {
+  display: -webkit-box;
+  overflow: hidden;
+  white-space: normal !important;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  height: calc(100% - 10px);
+  overflow: hidden;
+
+  .page-header {
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    background-color: var(--el-color-white);
+    overflow: hidden;
+  }
+
+  .page-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    border-radius: 6px;
+    background-color: var(--el-color-white);
+    overflow: hidden;
+    
+    .with-container {
+      height: 100%;
+      overflow: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #ccc #fff;
+    }
+  }
+
+  .page-footer {
+    margin-top: 10px;
+    border-radius: 6px 6px 0 0;
+    background-color: var(--el-color-white);
+    overflow: hidden;
+  }
+
+  .pagination {
+    padding: 16px 20px;
+    display: flex;
+    justify-content: flex-start;
+  }
+}

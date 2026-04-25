@@ -1,0 +1,153 @@
+// 蓝色主题
+.blue {
+
+    // 全局背景
+    body {
+        background-color: #f2f2f2;
+    }
+
+    .layouts-header {
+        background-color: #03b8cf !important;
+        color: #fff !important;
+        border-bottom: 1px solid #03b8cf !important;
+
+        .logo {
+            background-color: #0ba0b3 !important;
+            border-right: 1px solid #03b8cf !important;
+            color: #fff !important;
+        }
+
+        // 侧边栏切换按钮
+        .sidebar-toggle {
+            color: #fff !important;
+
+            &:hover {
+                background-color: #019cb1 !important;
+            }
+        }
+
+        .theme-toggle {
+            .toggle-button {
+                .svg-inline--fa {
+                    font-size: 13px;
+                    color: #fff !important;
+                }
+
+                &:hover {
+                    background-color: #019cb1 !important;
+                }
+            }
+        }
+    }
+
+    // 主栏
+    .main-sidebar {
+
+        .navbar-nav {
+            li {
+                color: #fff !important;
+            }
+
+            li:hover {
+                background: rgba(0, 0, 0, .1);
+            }
+
+            li.active {
+                background: rgba(0, 0, 0, .1);
+            }
+        }
+
+        li.user-menu {
+            .base {
+                .nickname {
+                    color: #fff !important;
+                }
+            }
+        }
+    }
+
+    // 侧边栏
+    .layouts-aside {
+        background-color: #383e4b !important;
+        .aside {
+            scrollbar-width: thin;
+            scrollbar-color: #a8a8a8 #383e4b !important;
+
+            .group {
+                color: #fff !important;
+                background-color: #383e4b !important;
+                border-left-color: transparent !important;
+                transition: all 0.3s ease;
+
+                &.active {
+                    border-left-color: #03b8cf !important;
+                    color: #e5e5e5 !important;
+                }
+
+                &:hover {
+                    color: #e5e5e5 !important;
+                }
+            }
+
+            .treeview-menu {
+                background-color: #383e4b !important;
+                border-bottom: 1px solid #363636 !important;
+
+                >li {
+                    background-color: #383e4b !important;
+                    color: #e5e5e5 !important;
+                    transition: all 0.3s ease;
+
+                    &:hover {
+                        background-color: #333844 !important;
+
+                        .svg-inline--fa {
+                            color: #03b8cf !important;
+                        }
+                    }
+
+                    &.active {
+                        background-color: #333844 !important;
+
+                        .svg-inline--fa {
+                            color: #03b8cf !important;
+                        }
+                    }
+                }
+            }
+
+            .module-menu {
+                .app-item {
+                    color: #fff !important;
+
+                    .app-icon {
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 7px;
+                        object-fit: cover;
+                    }
+
+                    .fas {
+                        font-size: 20px;
+                        color: #909399;
+                    }
+
+                    &:hover .title {
+                        color: #03b8cf !important;
+                    }
+                }
+            }
+
+
+            .app-info {
+                border-bottom: 1px solid #363636 !important;
+
+                .app-detail {
+                    .app-name {
+                        color: #fff !important;
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,158 @@
+// 暗色模式
+.dark {
+
+  // Element Plus 组件暗色模式
+  .layouts-header {
+    background-color: #262626 !important;
+    border-bottom: 1px solid #363636 !important;
+
+    .logo {
+      border-right: 1px solid #363636;
+    }
+
+    // 主栏
+    .main-sidebar {
+      background-color: #262626 !important;
+      border-right: 1px solid #363636;
+    }
+  }
+
+  .el-main {
+    background-color: #1a1a1a;
+  }
+
+
+
+  // Element Plus 组件暗色适配
+
+  // 页面容器
+  .page-container {
+
+    .page-header,
+    .page-content,
+    .page-footer {
+      background-color: #262626;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+    }
+
+
+    .page-content {
+      .with-container {
+        scrollbar-width: thin;
+        scrollbar-color: #666 #262626;
+      }
+    }
+  }
+
+  // 菜单相关
+  .menu-page-wrapper {
+    .menu-container {
+      background-color: #262626;
+    }
+
+    .menu-header {
+      background-color: #333333;
+      color: #e5e5e5;
+    }
+
+    .menu-item {
+      border-bottom: 1px solid #363636;
+
+      &:hover {
+        background-color: #333333;
+      }
+
+      .menu-title,
+      .menu-url,
+      .menu-sort,
+      .menu-type,
+      .menu-hide,
+      .menu-group {
+        color: #e5e5e5;
+      }
+    }
+  }
+
+  // 侧边栏
+  .layouts-aside {
+    background-color: #262626 !important;
+    border-right: 1px solid #363636 !important;
+    .aside {
+      scrollbar-width: thin;
+      scrollbar-color: #666 #262626 !important;
+
+      .group {
+        color: #a8a7a7 !important;
+        background-color: #262626 !important;
+        border-left-color: transparent !important;
+        transition: all 0.3s ease;
+
+        &.active {
+          border-left-color: var(--el-color-primary) !important;
+          color: #e5e5e5 !important;
+        }
+
+        &:hover {
+          color: #e5e5e5 !important;
+        }
+      }
+
+      .treeview-menu {
+        background-color: #262626 !important;
+        border-bottom: 1px solid #363636 !important;
+
+        >li {
+          background-color: #262626 !important;
+          color: #e5e5e5 !important;
+          transition: all 0.3s ease;
+
+          &:hover {
+            color: var(--el-color-primary) !important;
+            background-color: #333333 !important;
+
+            .svg-inline--fa {
+              color: var(--el-color-primary) !important;
+            }
+          }
+
+          &.active {
+            color: var(--el-color-primary) !important;
+            background-color: rgba(3, 184, 207, 0.1) !important;
+
+            .svg-inline--fa {
+              color: var(--el-color-primary) !important;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 模块菜单
+  .module-menu {
+    .app-item {
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #333333 !important;
+        transform: translateY(-1px);
+
+        .app-icon {
+          transform: scale(1.05);
+          transition: transform 0.3s ease;
+          box-shadow: 0 2px 8px rgba(255, 153, 0, 0.3);
+        }
+      }
+    }
+  }
+
+  .app-info {
+    border-bottom: 1px solid #363636 !important;
+
+    .app-detail {
+      .app-name {
+        color: #fff !important;
+      }
+    }
+  }
+}
