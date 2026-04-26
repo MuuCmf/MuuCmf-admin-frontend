@@ -47,7 +47,9 @@
         </el-form-item>
 
         <el-form-item label="排序" prop="sort">
-          <el-input-number v-model="formData.sort" :min="0" :max="9999" placeholder="请输入排序值" />
+          <div class="form-item-content">
+            <el-input-number v-model="formData.sort" :min="0" :max="9999" placeholder="请输入排序值" />
+          </div>
           <div class="form-tip">数值越大排序越靠前</div>
         </el-form-item>
 
@@ -191,40 +193,47 @@ const handleSubmit = async () => {
   display: flex;
   flex-direction: column;
   height: 100%;
-}
 
-.edit-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e4e7ed;
+  .edit-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e4e7ed;
 
-  h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #303133;
+    h3 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      color: #303133;
+    }
   }
-}
 
-.edit-content {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-}
+  .edit-content {
+    flex: 1;
+    padding: 24px;
+    overflow-y: auto;
+  }
 
-.form-tip {
-  font-size: 12px;
-  color: #909399;
-  margin-top: 4px;
-}
+  .form-item-content {
+    display: block;
+    width: 100%;
+  }
 
-.edit-footer {
-  padding: 16px 24px;
-  border-top: 1px solid #e4e7ed;
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  .form-tip {
+    font-size: 12px;
+    color: #909399;
+    margin-top: 4px;
+    display: block;
+    clear: both;
+  }
+
+  .edit-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e4e7ed;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
 }
 </style>
