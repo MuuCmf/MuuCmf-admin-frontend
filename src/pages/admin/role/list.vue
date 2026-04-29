@@ -365,8 +365,8 @@ onMounted(() => {
     }
 
     .card-header {
-      padding: 16px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px 16px;
+      background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
       color: #fff;
       position: relative;
 

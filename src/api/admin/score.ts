@@ -135,10 +135,17 @@ export const updateScoreTypeStatus = async (data: { ids: number; status: number 
  * @returns 返回后端接口响应数据，包含积分日志列表
  */
 export const getScoreLogList = async (params: { page: number; rows: number; keyword?: string }) => {
+  const queryParams: Record<string, any> = {
+    page: params.page,
+    rows: params.rows
+  };
+  if (params.keyword !== undefined && params.keyword !== '') {
+    queryParams.keyword = params.keyword;
+  }
   const res = await request({
     url: 'admin/score/log',
     method: 'GET',
-    params
+    params: queryParams
   });
   return res;
 };

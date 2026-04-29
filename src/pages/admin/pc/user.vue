@@ -101,33 +101,17 @@
 import { ref, onMounted } from 'vue';
 import { Plus, Check, ArrowUp, ArrowDown, Delete } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { request } from '@/utils/modules/request';
-
-interface UserNavItem {
-  id: string;
-  type: string;
-  app: string;
-  title: string;
-  url: string;
-  sort: number;
-  target: number;
-  status: number;
-}
+import { getAllModules } from '@/api/admin/module';
+import { getUserNavList, saveUserNavConfig, type UserNavItem } from '@/api/admin/pc';
 
 const loading = ref(false);
 const submitLoading = ref(false);
 const userNavList = ref<UserNavItem[]>([]);
 const moduleList = ref<any[]>([]);
 
-const getModuleList = async () => {
+const fetchModuleList = async () => {
   try {
-    const res = await request({
-      url: 'admin/module/all',
-      method: 'GET',
-      data: {
-        support: 'pc'
-      }
-    });
+    const res = await getAllModules({ support: 'pc' });
 
     if (res.code === 200) {
       moduleList.value = res.data;
@@ -137,16 +121,10 @@ const getModuleList = async () => {
   }
 };
 
-const getUserNavList = async () => {
+const fetchUserNavList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/pc/user',
-      method: 'GET',
-      data: {
-        output: 'json'
-      }
-    });
+    const res = await getUserNavList();
 
     if (res.code === 200) {
       userNavList.value = res.data || [];
@@ -232,15 +210,11 @@ const handleSubmit = async () => {
       target: userNavList.value.map(item => item.target)
     };
 
-    const res = await request({
-      url: 'admin/pc/user',
-      method: 'POST',
-      data: { nav }
-    });
+    const res = await saveUserNavConfig(nav);
 
     if (res.code === 200) {
       ElMessage.success('保存成功');
-      await getUserNavList();
+      await fetchUserNavList();
     }
   } catch (error) {
     console.error('保存失败:', error);
@@ -251,8 +225,8 @@ const handleSubmit = async () => {
 };
 
 onMounted(() => {
-  getModuleList();
-  getUserNavList();
+  fetchModuleList();
+  fetchUserNavList();
 });
 </script>
 

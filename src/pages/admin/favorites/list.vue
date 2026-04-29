@@ -35,7 +35,13 @@
             <el-table-column label="用户信息" min-width="180">
               <template #default="scope">
                 <div class="user-info-cell">
-                  <img :src="scope.row.user_info?.avatar64 || defaultAvatar" class="user-avatar" />
+                  <el-avatar
+                    :size="40"
+                    :src="scope.row.user_info?.avatar || scope.row.user_info?.avatar64 || ''"
+                    :alt="scope.row.user_info?.nickname || '-'"
+                  >
+                    {{ (scope.row.user_info?.nickname || '匿').charAt(0) }}
+                  </el-avatar>
                   <div class="user-details">
                     <div class="user-nickname">{{ scope.row.user_info?.nickname || '-' }}</div>
                     <div class="user-uid">UID: {{ scope.row.uid }}</div>
@@ -92,48 +98,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import SafeIcon from '@/components/SafeIcon.vue';
 import { useScrollReset } from '@/composables/useScrollReset';
+import { getFavoritesList, updateFavoritesStatus, type FavoritesItem } from '@/api/admin/favorites';
 
-// 滚动重置
+// @ts-expect-error - scrollContainerRef 在模板中使用
 const { scrollContainerRef, resetScrollTop } = useScrollReset();
-
-const defaultAvatar = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png';
-
-interface FavoritesItem {
-  id: number;
-  uid: number;
-  info_id: number;
-  info_type: string;
-  module_name: string;
-  status: number;
-  shopid: number;
-  app: string;
-  create_time?: number;
-  create_time_str?: string;
-  create_time_friendly_str?: string;
-  update_time?: number;
-  update_time_str?: string;
-  update_time_friendly_str?: string;
-  user_info?: {
-    uid: number;
-    nickname: string;
-    avatar: string;
-    status: number;
-  };
-  products?: {
-    title: string;
-    desc: string;
-    cover: string;
-  };
-  metadata?: {
-    title: string;
-    desc: string;
-    cover: string;
-  };
-}
 
 const page = ref(1);
 const rows = ref(20);
@@ -148,14 +119,10 @@ const selectedIds = ref<number[]>([]);
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/favorites/list',
-      method: 'GET',
-      data: {
-        page: page.value,
-        rows: rows.value,
-        ...searchForm.value
-      }
+    const res = await getFavoritesList({
+      page: page.value,
+      rows: rows.value,
+      keyword: searchForm.value.keyword
     });
     if (res.code === 200) {
       lists.value = res.data.data || [];
@@ -193,13 +160,9 @@ const handleDelete = (id: number) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/favorites/status',
-          method: 'POST',
-          data: {
-            ids: [id],
-            status: -1
-          }
+        const res = await updateFavoritesStatus({
+          ids: [id],
+          status: -1
         });
         if (res.code === 200) {
           ElMessage.success('删除成功');
@@ -227,13 +190,9 @@ const batchDelete = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/favorites/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value,
-            status: -1
-          }
+        const res = await updateFavoritesStatus({
+          ids: selectedIds.value,
+          status: -1
         });
         if (res.code === 200) {
           ElMessage.success('批量删除成功');

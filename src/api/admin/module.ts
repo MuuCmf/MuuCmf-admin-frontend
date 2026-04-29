@@ -8,12 +8,21 @@ import { request } from '@/utils/modules/request';
 /**
  * 获取所有应用模块列表
  * @description 调用后端接口获取系统中所有的应用模块信息
+ * @param params - 请求参数，包含支持的平台，默认值为'pc'
+ * @param params.support - 支持的平台，默认值为'pc'
+
  * @returns 返回后端接口响应数据，包含应用模块列表
  */
-export const getAllModules = async () => {
+export const getAllModules = async (params?: { support?: string }) => {
+  const queryParams: Record<string, any> = {};
+  if (params?.support !== undefined && params.support !== '') {
+    queryParams.support = params.support;
+  }
+
   const res = await request({
     url: 'admin/module/all',
-    method: 'GET'
+    method: 'GET',
+    params: queryParams
   });
   return res;
 };

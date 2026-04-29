@@ -39,7 +39,9 @@
             <el-table-column label="用户信息" min-width="200" align="left">
               <template #default="scope">
                 <div class="user-info">
-                  <el-avatar :src="scope.row.avatar64" :size="50" />
+                  <el-avatar :size="40" :src="scope.row.avatar64" :alt="scope.row.nickname">
+                    {{ (scope.row.nickname || scope.row.username || '').charAt(0) }}
+                  </el-avatar>
                   <div class="user-detail">
                     <div class="username">{{ scope.row.username }}</div>
                     <div class="nickname">{{ scope.row.nickname }}</div>

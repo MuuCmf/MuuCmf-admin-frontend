@@ -101,34 +101,17 @@
 import { ref, onMounted } from 'vue';
 import { Plus, Check, ArrowUp, ArrowDown, Delete } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { request } from '@/utils/modules/request';
-
-interface FooterItem {
-  id: string;
-  block: string;
-  type: string;
-  app: string;
-  title: string;
-  url: string;
-  sort: number;
-  target: number;
-  status: number;
-}
+import { getAllModules } from '@/api/admin/module';
+import { getFooterList, saveFooterConfig, type FooterItem } from '@/api/admin/pc';
 
 const loading = ref(false);
 const submitLoading = ref(false);
 const footerList = ref<FooterItem[]>([]);
 const moduleList = ref<any[]>([]);
 
-const getModuleList = async () => {
+const fetchModuleList = async () => {
   try {
-    const res = await request({
-      url: 'admin/module/all',
-      method: 'GET',
-      data: {
-        support: 'pc'
-      }
-    });
+    const res = await getAllModules({ support: 'pc' });
 
     if (res.code === 200) {
       moduleList.value = res.data;
@@ -138,16 +121,10 @@ const getModuleList = async () => {
   }
 };
 
-const getFooterList = async () => {
+const fetchFooterList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/pc/footer',
-      method: 'GET',
-      data: {
-        output: 'json'
-      }
-    });
+    const res = await getFooterList();
 
     if (res.code === 200) {
       footerList.value = res.data || [];
@@ -225,15 +202,11 @@ const handleSubmit = async () => {
       target: footerList.value.map(item => item.target)
     };
 
-    const res = await request({
-      url: 'admin/pc/footer',
-      method: 'POST',
-      data: { nav }
-    });
+    const res = await saveFooterConfig(nav);
 
     if (res.code === 200) {
       ElMessage.success('保存成功');
-      await getFooterList();
+      await fetchFooterList();
     }
   } catch (error) {
     console.error('保存失败:', error);
@@ -244,8 +217,8 @@ const handleSubmit = async () => {
 };
 
 onMounted(() => {
-  getModuleList();
-  getFooterList();
+  fetchModuleList();
+  fetchFooterList();
 });
 </script>
 

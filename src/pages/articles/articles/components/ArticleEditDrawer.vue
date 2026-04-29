@@ -563,39 +563,6 @@ onBeforeUnmount(() => {
   width: fit-content;
 }
 
-:deep(.w-e-text-container) {
-  background-color: #fff;
-}
-
-:deep(.w-e-toolbar) {
-  background-color: #fff;
-}
-
-:deep(.dark) {
-  :deep(.w-e-text-container) {
-    background-color: #1e1e1e;
-    color: #e5e7eb;
-  }
-
-  :deep(.w-e-toolbar) {
-    background-color: #1e1e1e;
-    border-bottom-color: #374151;
-  }
-
-  :deep(.w-e-bar-item) {
-    color: #e5e7eb;
-  }
-
-  :deep(.w-e-bar-item:hover) {
-    background-color: #374151;
-  }
-
-  :deep(.w-e-textarea) {
-    background-color: #1e1e1e;
-    color: #e5e7eb;
-  }
-}
-
 .editor-container {
   border: 1px solid #ccc;
   border-radius: 4px;

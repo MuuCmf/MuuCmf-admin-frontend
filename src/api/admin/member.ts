@@ -14,11 +14,18 @@ import { request } from '@/utils/modules/request';
  * @param params.keyword - 搜索关键词
  * @returns 返回后端接口响应数据，包含用户列表
  */
-export const getMemberList = async (params: { page: number; rows: number; keyword: string }) => {
+export const getMemberList = async (params: { page: number; rows: number; keyword?: string }) => {
+  const queryParams: Record<string, any> = {
+    page: params.page,
+    rows: params.rows
+  };
+  if (params.keyword !== undefined && params.keyword !== '') {
+    queryParams.keyword = params.keyword;
+  }
   const res = await request({
     url: 'admin/member/index',
     method: 'GET',
-    params
+    params: queryParams
   });
   return res;
 };

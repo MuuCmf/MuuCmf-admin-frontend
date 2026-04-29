@@ -151,23 +151,12 @@
 import { ref, reactive, onMounted } from 'vue';
 import { Plus, Check, Close, Delete } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { request } from '@/utils/modules/request';
 import type { FormInstance, FormRules } from 'element-plus';
 import { useScrollReset } from '@/composables/useScrollReset';
+import { getAllModules } from '@/api/admin/module';
+import { getSeoList, updateSeoStatus, saveSeoRule, type SeoRule } from '@/api/admin/seo';
 
-interface SeoRule {
-  id: number;
-  title: string;
-  app: string;
-  controller: string;
-  action: string;
-  seo_title: string;
-  seo_keywords: string;
-  seo_description: string;
-  status: number;
-  create_time: string;
-}
-
+// @ts-expect-error - scrollContainerRef 在模板中使用
 const { scrollContainerRef, resetScrollTop } = useScrollReset();
 
 const formRef = ref<FormInstance>();
@@ -209,15 +198,9 @@ const rules: FormRules = {
   action: [{ required: true, message: '请输入操作方法', trigger: 'blur' }]
 };
 
-const getModuleList = async () => {
+const fetchModuleList = async () => {
   try {
-    const res = await request({
-      url: 'admin/module/all',
-      method: 'GET',
-      data: {
-        support: 'pc'
-      }
-    });
+    const res = await getAllModules({ support: 'pc' });
 
     if (res.code === 200) {
       moduleList.value = res.data || [];
@@ -235,14 +218,7 @@ const getModuleList = async () => {
 const getList = async () => {
   loading.value = true;
   try {
-    const params = {
-      ...searchForm
-    };
-    const res = await request({
-      url: 'admin/seo/list',
-      method: 'GET',
-      data: params
-    });
+    const res = await getSeoList(searchForm);
 
     if (res.code === 200) {
       // 处理数据，确保 app 字段存在
@@ -341,13 +317,9 @@ const handleDelete = (row: SeoRule) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/seo/status',
-          method: 'POST',
-          data: {
-            ids: row.id,
-            status: -1
-          }
+        const res = await updateSeoStatus({
+          ids: row.id,
+          status: -1
         });
 
         if (res.code === 200) {
@@ -375,13 +347,9 @@ const handleBatchEnable = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/seo/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value.join(','),
-            status: 1
-          }
+        const res = await updateSeoStatus({
+          ids: selectedIds.value.join(','),
+          status: 1
         });
 
         if (res.code === 200) {
@@ -410,13 +378,9 @@ const handleBatchDisable = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/seo/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value.join(','),
-            status: 0
-          }
+        const res = await updateSeoStatus({
+          ids: selectedIds.value.join(','),
+          status: 0
         });
 
         if (res.code === 200) {
@@ -445,13 +409,9 @@ const handleBatchDelete = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/seo/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value.join(','),
-            status: -1
-          }
+        const res = await updateSeoStatus({
+          ids: selectedIds.value.join(','),
+          status: -1
         });
 
         if (res.code === 200) {
@@ -475,19 +435,14 @@ const handleSubmit = async () => {
 
     submitLoading.value = true;
     try {
-      const res = await request({
-        url: 'admin/seo/edit',
-        method: 'POST',
-        data: {
-          ...formData,
-          action2: formData.action
-        }
-      });
+      const res = await saveSeoRule(formData);
 
       if (res.code === 200) {
         ElMessage.success(formData.id ? '编辑成功' : '添加成功');
         dialogVisible.value = false;
         getList();
+      } else {
+        ElMessage.error(res.msg || '保存失败');
       }
     } catch (error) {
       console.error('保存失败:', error);
@@ -503,7 +458,7 @@ const handleDialogClose = () => {
 };
 
 onMounted(async () => {
-  await getModuleList();
+  await fetchModuleList();
   getList();
 });
 </script>

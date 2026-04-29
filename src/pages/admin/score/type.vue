@@ -1,89 +1,73 @@
 <template>
   <div class="page-container">
-    <div class="page-header">
-      <div class="score-type-toolbar">
-        <div class="header-active">
-          <el-button type="primary" @click="handleAddType"> 新增积分类型 </el-button>
-        </div>
-        <div class="search-form">
-          <el-form :inline="true" :model="searchForm" class="demo-form-inline">
-            <el-form-item>
-              <el-input
-                v-model="searchForm.keyword"
-                placeholder="搜索积分类型名称"
-                clearable
-                style="width: 300px; margin-right: 12px"
-                @clear="handleSearch"
-                @keyup.enter="handleSearch"
-              >
-                <template #prefix>
-                  <el-icon>
-                    <Search />
-                  </el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="handleSearch">搜索</el-button>
-              <el-button @click="handleReset">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-      </div>
-    </div>
-    <div v-loading="loading" class="page-content">
+    <div class="page-content">
       <div class="with-container">
-        <div class="table-container">
-          <el-table :data="list" style="width: 100%">
-            <el-table-column prop="id" label="ID" width="80" align="center" />
-            <el-table-column prop="title" label="类型名称" min-width="180" align="left" />
-            <el-table-column prop="unit" label="单位" width="180" align="left" />
-            <el-table-column prop="status" label="状态" width="120" align="center">
-              <template #default="scope">
+        <!-- 页面标题 -->
+        <div class="page-header-section">
+          <h1 class="page-title">积分类型设置</h1>
+          <p class="page-description">使用中的积分类型与单位</p>
+        </div>
+
+        <!-- 卡片列表 -->
+        <div v-loading="loading" class="score-type-grid">
+          <div v-for="item in list" :key="item.id" class="score-type-card">
+            <div class="card-header">
+              <div class="card-icon">
+                <span class="icon-text">{{ item.title.charAt(0) }}</span>
+              </div>
+              <div class="card-title-group">
+                <h3 class="card-title">{{ item.title }}</h3>
+                <span class="card-unit">单位：{{ item.unit }}</span>
+              </div>
+            </div>
+            <div class="card-footer">
+              <el-tag :type="item.status === 1 ? 'success' : 'info'" size="small" effect="light">
+                {{ item.status === 1 ? '已启用' : '已禁用' }}
+              </el-tag>
+              <div class="card-actions">
+                <el-button type="primary" size="small" link @click="handleEditType(item)"> 编辑 </el-button>
                 <el-switch
-                  v-model="scope.row.status"
+                  v-model="item.status"
                   :active-value="1"
                   :inactive-value="0"
-                  @change="handleStatusChange(scope.row)"
+                  size="small"
+                  @change="handleStatusChange(item)"
                 />
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="180" align="right" fixed="right">
-              <template #default="scope">
-                <el-button type="primary" size="small" @click="handleEditType(scope.row)"> 编辑 </el-button>
-                <el-button type="danger" size="small" @click="handleDeleteType(scope.row)"> 删除 </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 空状态 -->
+        <div v-if="list.length === 0 && !loading" class="empty-state">
+          <el-empty description="暂无积分类型" />
         </div>
       </div>
     </div>
+
     <!-- 编辑积分类型对话框 -->
     <el-dialog
-      v-model="editDrawerVisible"
-      :title="editDrawerTitle"
+      v-model="editDialogVisible"
+      title="编辑积分类型"
       width="500px"
       destroy-on-close
-      @close="handleDrawerClose"
+      @close="handleDialogClose"
     >
-      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="100px" style="margin-top: 20px">
-        <el-form-item label="类型" prop="title">
-          <el-input v-model="formData.title" placeholder="请输入积分类型名称" style="width: 100%" />
+      <el-form ref="formRef" :model="formData" :rules="formRules" label-width="80px">
+        <el-form-item label="类型名称" prop="title">
+          <el-input v-model="formData.title" placeholder="请输入积分类型名称" />
         </el-form-item>
         <el-form-item label="单位" prop="unit">
-          <el-input v-model="formData.unit" placeholder="请输入积分单位" style="width: 100%" />
+          <el-input v-model="formData.unit" placeholder="请输入积分单位" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-switch v-model="formData.status" :active-value="1" :inactive-value="0" />
         </el-form-item>
       </el-form>
-
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="handleDrawerClose">取消</el-button>
-          <el-button type="primary" :loading="submitLoading" @click="handleSubmit">
-            {{ formData.id ? '更新' : '创建' }}
-          </el-button>
+          <el-button @click="handleDialogClose">取消</el-button>
+          <el-button type="primary" :loading="submitLoading" @click="handleSubmit"> 保存 </el-button>
         </div>
       </template>
     </el-dialog>
@@ -92,27 +76,20 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import { Search } from '@element-plus/icons-vue';
+import { ElMessage } from 'element-plus';
 import {
   getScoreTypeList,
-  editScoreType,
-  deleteScoreType,
   updateScoreTypeStatus,
+  editScoreType,
   type ScoreTypeItem,
   type ScoreTypeFormData
 } from '@/api';
 
-// 响应式数据
 const list = ref<ScoreTypeItem[]>([]);
 const loading = ref(false);
-const searchForm = ref({
-  keyword: ''
-});
 
 // 编辑对话框相关
-const editDrawerVisible = ref(false);
-const editDrawerTitle = ref('');
+const editDialogVisible = ref(false);
 const formRef = ref();
 const submitLoading = ref(false);
 const formData = reactive<ScoreTypeFormData>({
@@ -124,8 +101,8 @@ const formData = reactive<ScoreTypeFormData>({
 // 表单验证规则
 const formRules = reactive({
   title: [
-    { required: true, message: '请输入积分类型标题', trigger: 'blur' },
-    { min: 1, max: 50, message: '标题长度在 1 到 50 个字符', trigger: 'blur' }
+    { required: true, message: '请输入积分类型名称', trigger: 'blur' },
+    { min: 1, max: 50, message: '名称长度在 1 到 50 个字符', trigger: 'blur' }
   ],
   unit: [
     { required: true, message: '请输入积分单位', trigger: 'blur' },
@@ -133,16 +110,10 @@ const formRules = reactive({
   ]
 });
 
-// 获取积分类型列表
 const getList = async () => {
   loading.value = true;
   try {
-    const data: Record<string, any> = {
-      keyword: searchForm.value.keyword
-    };
-
-    const res = await getScoreTypeList(data);
-
+    const res = await getScoreTypeList();
     if (res.code === 200) {
       list.value = res.data || [];
     }
@@ -154,37 +125,39 @@ const getList = async () => {
   }
 };
 
-// 搜索
-const handleSearch = () => {
-  getList();
-};
-
-// 重置
-const handleReset = () => {
-  searchForm.value.keyword = '';
-  getList();
-};
-
-// 添加积分类型
-const handleAddType = () => {
-  handleEditType();
-};
-
-// 新增、编辑积分类型统一方法
-const handleEditType = (item?: ScoreTypeItem) => {
-  if (item) {
-    // 编辑模式
-    formData.id = item.id;
-    formData.title = item.title;
-    formData.unit = item.unit;
-    formData.status = item.status;
-    editDrawerTitle.value = '编辑积分类型';
-  } else {
-    // 添加模式
-    resetForm();
-    editDrawerTitle.value = '添加积分类型';
+const handleStatusChange = async (item: ScoreTypeItem) => {
+  try {
+    const actionText = item.status === 1 ? '启用' : '禁用';
+    const res = await updateScoreTypeStatus({
+      ids: item.id,
+      status: item.status
+    });
+    if (res.code === 200) {
+      ElMessage.success(`${actionText}成功`);
+    } else {
+      ElMessage.error(res.msg || `${actionText}失败`);
+      item.status = item.status === 1 ? 0 : 1;
+    }
+  } catch (error) {
+    console.error('状态切换失败:', error);
+    ElMessage.error('状态切换失败');
+    item.status = item.status === 1 ? 0 : 1;
   }
-  editDrawerVisible.value = true;
+};
+
+// 编辑积分类型
+const handleEditType = (item: ScoreTypeItem) => {
+  formData.id = item.id;
+  formData.title = item.title;
+  formData.unit = item.unit;
+  formData.status = item.status;
+  editDialogVisible.value = true;
+};
+
+// 关闭对话框
+const handleDialogClose = () => {
+  editDialogVisible.value = false;
+  resetForm();
 };
 
 // 重置表单
@@ -198,28 +171,19 @@ const resetForm = () => {
   }
 };
 
-// 关闭对话框
-const handleDrawerClose = () => {
-  editDrawerVisible.value = false;
-  resetForm();
-};
-
 // 表单提交
 const handleSubmit = async () => {
   if (!formRef.value) return;
-
   try {
     await formRef.value.validate();
     submitLoading.value = true;
-
     const res = await editScoreType(formData);
-
     if (res.code === 200) {
-      ElMessage.success(formData.id ? '更新成功' : '创建成功');
-      handleDrawerClose();
-      getList(); // 刷新列表
+      ElMessage.success('保存成功');
+      handleDialogClose();
+      getList();
     } else {
-      ElMessage.error(res.msg || (formData.id ? '更新失败' : '创建失败'));
+      ElMessage.error(res.msg || '保存失败');
     }
   } catch (error: any) {
     if (error !== 'cancel') {
@@ -231,94 +195,135 @@ const handleSubmit = async () => {
   }
 };
 
-// 删除积分类型
-const handleDeleteType = async (item: ScoreTypeItem) => {
-  try {
-    await ElMessageBox.confirm(`确定要删除积分类型 "${item.title}" 吗？`, '确认删除', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    });
-
-    // 调用删除接口
-    const res = await deleteScoreType({ ids: item.id });
-
-    if (res.code === 200) {
-      ElMessage.success('删除成功');
-      getList(); // 刷新列表
-    } else {
-      ElMessage.error(res.msg || '删除失败');
-    }
-  } catch (error: any) {
-    if (error !== 'cancel') {
-      console.error('删除积分类型失败:', error);
-      ElMessage.error('删除积分类型失败');
-    }
-  }
-};
-
-// 切换状态
-const handleStatusChange = async (item: ScoreTypeItem) => {
-  try {
-    const actionText = item.status === 1 ? '启用' : '禁用';
-    const res = await updateScoreTypeStatus({
-      ids: item.id,
-      status: item.status
-    });
-
-    if (res.code === 200) {
-      ElMessage.success(`${actionText}成功`);
-      getList(); // 刷新列表
-    } else {
-      ElMessage.error(res.msg || `${actionText}失败`);
-      // 恢复原状态
-      item.status = item.status === 1 ? 0 : 1;
-    }
-  } catch (error) {
-    console.error('状态切换失败:', error);
-    ElMessage.error('状态切换失败');
-    // 恢复原状态
-    item.status = item.status === 1 ? 0 : 1;
-  }
-};
-
-// 初始化
 onMounted(() => {
   getList();
 });
 </script>
 
 <style lang="scss" scoped>
-.page-header {
-  .score-type-toolbar {
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .header-active {
-      display: flex;
-      align-items: center;
-
-      .el-button + .el-button {
-        margin-left: 12px;
-      }
-    }
-
-    .search-form {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-
-      .el-form-item {
-        margin-bottom: 0;
-        margin-right: 0;
-      }
-    }
-  }
+.page-container {
+  min-height: 100%;
 }
 
 .page-content {
-  padding: 10px;
+  padding: 24px;
+}
+
+.page-header-section {
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #171717;
+  margin: 0 0 8px 0;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.page-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.score-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.score-type-card {
+  background: #ffffff;
+  border: 1px solid #f3f4f6;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.score-type-card:hover {
+  border-color: #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #03b8cf 0%, #028a9b 100%);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-text {
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.card-title-group {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #171717;
+  margin: 0 0 4px 0;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.card-unit {
+  font-size: 13px;
+  color: #6b7280;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-state {
+  margin-top: 60px;
 }
 </style>

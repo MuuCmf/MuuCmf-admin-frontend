@@ -215,10 +215,10 @@ const selectedUserUid = ref<number>(0);
 // 认证状态标签类型
 const getAuthTagType = (val: number) => {
   switch (val) {
-    case 1:
+    case 2:
       return 'success';
-    case 0:
-      return 'info';
+    case 1:
+      return 'warning';
     case -1:
       return 'danger';
     default:

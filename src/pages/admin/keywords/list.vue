@@ -112,22 +112,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import SafeIcon from '@/components/SafeIcon.vue';
 import { useScrollReset } from '@/composables/useScrollReset';
-
-interface KeywordItem {
-  id: number;
-  keyword: string;
-  sort: number;
-  status: number;
-  recommend?: number;
-  create_time?: string;
-  create_time_str?: string;
-  update_time?: string;
-  update_time_str?: string;
-}
+import { getKeywordsList, updateKeywordsStatus, saveKeyword, type KeywordItem } from '@/api/admin/keywords';
 
 // @ts-expect-error - scrollContainerRef 在模板中使用
 const { scrollContainerRef, resetScrollTop } = useScrollReset();
@@ -165,14 +153,11 @@ const rules = {
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/keywords/list',
-      method: 'GET',
-      data: {
-        page: page.value,
-        rows: rows.value,
-        ...searchForm.value
-      }
+    const res = await getKeywordsList({
+      page: page.value,
+      rows: rows.value,
+      keyword: searchForm.value.keyword,
+      status: searchForm.value.status
     });
     if (res.code === 200) {
       lists.value = (res.data.data || []).map((item: KeywordItem) => ({
@@ -238,13 +223,9 @@ const handleDelete = (id: number) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/keywords/status',
-          method: 'POST',
-          data: {
-            ids: id,
-            status: -1
-          }
+        const res = await updateKeywordsStatus({
+          ids: id,
+          status: -1
         });
         if (res.code === 200) {
           ElMessage.success('关键字删除成功');
@@ -268,13 +249,9 @@ const handleStatusToggle = async (row: KeywordItem) => {
   const originalStatus = row.status === 1 ? 0 : 1;
 
   try {
-    const res = await request({
-      url: 'admin/keywords/status',
-      method: 'POST',
-      data: {
-        ids: [row.id],
-        status: row.status
-      }
+    const res = await updateKeywordsStatus({
+      ids: [row.id],
+      status: row.status
     });
     if (res.code !== 200) {
       ElMessage.error(res.msg || '状态更新失败');
@@ -303,13 +280,9 @@ const batchEnable = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/keywords/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value,
-            status: 1
-          }
+        const res = await updateKeywordsStatus({
+          ids: selectedIds.value,
+          status: 1
         });
         if (res.code === 200) {
           ElMessage.success('批量启用成功');
@@ -337,13 +310,9 @@ const batchDisable = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/keywords/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value,
-            status: 0
-          }
+        const res = await updateKeywordsStatus({
+          ids: selectedIds.value,
+          status: 0
         });
         if (res.code === 200) {
           ElMessage.success('批量禁用成功');
@@ -371,13 +340,9 @@ const batchDelete = () => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/keywords/status',
-          method: 'POST',
-          data: {
-            ids: selectedIds.value,
-            status: -1
-          }
+        const res = await updateKeywordsStatus({
+          ids: selectedIds.value,
+          status: -1
         });
         if (res.code === 200) {
           ElMessage.success('批量删除成功');
@@ -403,12 +368,7 @@ const handleSubmit = async () => {
   try {
     await formRef.value.validate();
 
-    const url = 'admin/keywords/edit';
-    const res = await request({
-      url,
-      method: 'POST',
-      data: form
-    });
+    const res = await saveKeyword(form);
 
     if (res.code === 200) {
       ElMessage.success(form.id ? '关键字更新成功' : '关键字添加成功');

@@ -223,34 +223,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { ArrowDown } from '@element-plus/icons-vue';
 import { useScrollReset } from '@/composables/useScrollReset';
+import { getFeedbackList, updateFeedbackStatus, replyFeedback, type FeedbackItem } from '@/api/admin/feedback';
 
-// 反馈数据类型
-interface FeedbackItem {
-  id: number;
-  uid: number;
-  type: string;
-  content: string;
-  contact: string;
-  images: string[];
-  status: number;
-  reply: string;
-  create_time: number;
-  update_time: number;
-  create_time_str?: string;
-  update_time_str?: string;
-  user_info?: {
-    nickname: string;
-    username: string;
-    avatar?: string;
-    avatar64?: string;
-  };
-}
-
-// 滚动重置
+// @ts-expect-error - scrollContainerRef 在模板中使用
 const { scrollContainerRef, resetScrollTop } = useScrollReset();
 
 // 响应式数据
@@ -319,28 +297,12 @@ const getStatusTagType = (status: number) => {
 const getList = async () => {
   loading.value = true;
   try {
-    let data = {
+    const res = await getFeedbackList({
       page: page.value,
       rows: rows.value,
-      keyword: '',
-      type: '',
-      status: 'all'
-    };
-
-    if (searchForm.value.keyword) {
-      data.keyword = searchForm.value.keyword;
-    }
-    if (searchForm.value.type) {
-      data.type = searchForm.value.type;
-    }
-    if (searchForm.value.status !== 'all') {
-      data.status = searchForm.value.status;
-    }
-
-    const res = await request({
-      url: 'admin/feedback/list',
-      data: data,
-      method: 'GET'
+      keyword: searchForm.value.keyword,
+      type: searchForm.value.type,
+      status: searchForm.value.status
     });
 
     if (res.code === 200) {
@@ -401,13 +363,9 @@ const handleStatusChange = (status: string, feedback: FeedbackItem) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/feedback/status',
-          method: 'POST',
-          data: {
-            ids: feedback.id,
-            status: parseInt(status)
-          }
+        const res = await updateFeedbackStatus({
+          ids: feedback.id,
+          status: parseInt(status)
         });
         if (res.code === 200) {
           ElMessage.success('状态更新成功');
@@ -433,13 +391,9 @@ const handleReply = async () => {
 
   replyLoading.value = true;
   try {
-    const res = await request({
-      url: 'admin/feedback/reply',
-      method: 'POST',
-      data: {
-        id: currentFeedback.value.id,
-        reply: replyForm.value.reply
-      }
+    const res = await replyFeedback({
+      id: currentFeedback.value.id,
+      reply: replyForm.value.reply
     });
     if (res.code === 200) {
       ElMessage.success('回复成功');
@@ -465,13 +419,9 @@ const handleDelete = async (id: number) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/feedback/status',
-          method: 'POST',
-          data: {
-            ids: id,
-            status: -1
-          }
+        const res = await updateFeedbackStatus({
+          ids: id,
+          status: -1
         });
         if (res.code === 200) {
           ElMessage.success('删除成功');

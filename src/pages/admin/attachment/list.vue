@@ -205,9 +205,44 @@ const previewFile = (fileInfo: AttachmentItem) => {
 
 // 下载文件
 const downloadFile = (fileInfo: AttachmentItem) => {
-  // 实际项目中实现文件下载逻辑
+  if (!fileInfo.url) {
+    ElMessage.error('文件地址不存在');
+    return;
+  }
+
   ElMessage.success('文件下载开始');
-  console.log('下载文件:', fileInfo);
+
+  try {
+    const link = document.createElement('a');
+    link.href = fileInfo.url;
+    link.download = fileInfo.filename;
+    link.target = '_blank';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  } catch (error) {
+    // 如果直接下载失败，尝试通过 Blob 方式下载
+    downloadFileByBlob(fileInfo);
+  }
+};
+
+// 通过 Blob 方式下载文件（处理跨域问题）
+const downloadFileByBlob = async (fileInfo: AttachmentItem) => {
+  try {
+    const response = await window.fetch(fileInfo.url);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileInfo.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    ElMessage.error('文件下载失败');
+    console.error('下载失败:', error);
+  }
 };
 
 // 删除文件

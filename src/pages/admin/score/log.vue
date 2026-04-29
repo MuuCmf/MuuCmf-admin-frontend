@@ -31,12 +31,14 @@
           <el-table-column prop="user_info.nickname" label="用户" min-width="150">
             <template #default="scope">
               <div style="display: flex; align-items: center; gap: 8px">
-                <img
-                  :src="scope.row.user_info.avatar64 || defaultAvatar"
-                  :alt="scope.row.user_info.nickname"
-                  class="user-avatar"
-                />
-                <span>{{ scope.row.user_info.nickname }}</span>
+                <el-avatar
+                  :size="40"
+                  :src="scope.row.user_info?.avatar || scope.row.user_info?.avatar64 || ''"
+                  :alt="scope.row.user_info?.nickname || '-'"
+                >
+                  {{ (scope.row.user_info?.nickname || '匿').charAt(0) }}
+                </el-avatar>
+                <span>{{ scope.row.user_info?.nickname || '-' }}</span>
               </div>
             </template>
           </el-table-column>
@@ -107,8 +109,7 @@ const total = ref<number>(0);
 const searchForm = ref({
   keyword: ''
 });
-const defaultAvatar = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png';
-const { scrollContainerRef, resetScrollTop } = useScrollReset();
+const { resetScrollTop } = useScrollReset();
 
 // 获取积分日志列表
 const getList = async () => {
@@ -222,11 +223,6 @@ onMounted(() => {
   object-fit: cover;
 }
 
-.user-uid {
-  color: #909399;
-  font-size: 12px;
-}
-
 .score-increase {
   color: #67c23a;
   font-weight: 500;
@@ -248,10 +244,6 @@ onMounted(() => {
   .page-content,
   .page-footer {
     background-color: #262626;
-  }
-
-  .user-uid {
-    color: #909399;
   }
 }
 </style>
