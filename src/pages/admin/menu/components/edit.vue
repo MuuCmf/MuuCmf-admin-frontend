@@ -83,7 +83,7 @@
 import { ref, reactive, computed, watch, onUnmounted, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import IconSelector from '@/components/IconSelector.vue';
-import { editMenu } from '@/api';
+import { editMenu } from '@/api/admin/menu';
 
 // 组件属性
 interface Props {

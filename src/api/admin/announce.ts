@@ -54,10 +54,21 @@ export interface AnnounceInfo {
  * @returns 返回后端接口响应数据，包含公告列表
  */
 export const getAnnounceList = async (params: { page: number; rows: number; keyword?: string; status?: string }) => {
+  const queryParams: Record<string, any> = {
+    page: params.page,
+    rows: params.rows
+  };
+  if (params.keyword !== undefined && params.keyword !== '') {
+    queryParams.keyword = params.keyword;
+  }
+  if (params.status !== undefined && params.status !== '' && params.status !== 'all') {
+    queryParams.status = params.status;
+  }
+
   const res = await request({
     url: 'admin/announce/list',
     method: 'GET',
-    params
+    params: queryParams
   });
   return res;
 };

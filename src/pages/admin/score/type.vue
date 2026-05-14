@@ -83,7 +83,7 @@ import {
   editScoreType,
   type ScoreTypeItem,
   type ScoreTypeFormData
-} from '@/api';
+} from '@/api/admin/score';
 
 const list = ref<ScoreTypeItem[]>([]);
 const loading = ref(false);

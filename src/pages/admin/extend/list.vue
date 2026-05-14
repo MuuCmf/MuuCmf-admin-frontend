@@ -91,7 +91,7 @@ import { Plus } from '@element-plus/icons-vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import ExtendEdit from './components/edit.vue';
 import { useScrollReset } from '@/composables/useScrollReset';
-import { getExtendGroupList, getExtendList, deleteExtend } from '@/api';
+import { getExtendGroupList, getExtendList, deleteExtend } from '@/api/admin/extend';
 
 // 滚动重置
 const { resetScrollTop } = useScrollReset();

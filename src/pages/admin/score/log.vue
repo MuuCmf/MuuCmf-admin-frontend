@@ -98,7 +98,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import { useScrollReset } from '@/composables/useScrollReset';
-import { getScoreLogList, clearScoreLog, type ScoreLogItem } from '@/api';
+import { getScoreLogList, clearScoreLog, type ScoreLogItem } from '@/api/admin/score';
 
 // 响应式数据
 const list = ref<ScoreLogItem[]>([]);

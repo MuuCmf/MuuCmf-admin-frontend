@@ -106,7 +106,7 @@
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Loading, Close } from '@element-plus/icons-vue';
-import { getMessageTypes, editMessageType, updateMessageTypeStatus, uploadAttachment } from '@/api';
+import { getMessageTypes, editMessageType, updateMessageTypeStatus, uploadAttachment } from '@/api/admin/message';
 import MessageSend from '@/components/MessageSend.vue';
 
 interface MessageTypeItem {

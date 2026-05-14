@@ -96,8 +96,8 @@
 import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
-import { getActionLogList, deleteActionLog, clearActionLog } from '@/api';
-import type { ActionLogItem } from '@/api';
+import { getActionLogList, deleteActionLog, clearActionLog } from '@/api/admin/action';
+import type { ActionLogItem } from '@/api/admin/action';
 
 // 响应式数据
 const loading = ref(false);

@@ -39,8 +39,8 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import type { appDataInterface } from '@/pages/admin/module/type';
+import { getModuleChangeLogList } from '@/api/admin/module';
 
 const props = defineProps<{
   visible: boolean;
@@ -78,11 +78,7 @@ const fetchUpgradeLogs = async () => {
 
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/module/cvlist',
-      method: 'GET',
-      data: { name: props.data.name }
-    });
+    const res = await getModuleChangeLogList(props.data.name);
     if (res.code === 200) {
       logList.value = res.data.data || [];
     } else {

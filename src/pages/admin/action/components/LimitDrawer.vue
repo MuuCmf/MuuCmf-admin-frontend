@@ -65,7 +65,7 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { getActionList, editLimit } from '@/api';
+import { getActionList, editLimit } from '@/api/admin/action';
 
 interface LimitFormData {
   id?: number;

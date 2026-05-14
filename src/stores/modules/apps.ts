@@ -1,7 +1,7 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import defaultSettings from '@/settings';
-import { getAllModules, getModuleInfo } from '@/api';
+import { getAllModules, getModulesInfo } from '@/api/admin/module';
 
 /**
  * 应用模块状态管理
@@ -33,8 +33,9 @@ export const useAppsStore = defineStore('apps', () => {
       currentAppInfo.value = false;
       localStorage.setItem('app_name', 'admin');
     } else {
-      const res = await getModuleInfo(defaultSettings.appName);
+      const res = await getModulesInfo(defaultSettings.appName);
       currentAppInfo.value = res.data || {};
+      console.log(currentAppInfo.value);
       localStorage.setItem('app_name', defaultSettings.appName);
     }
   };

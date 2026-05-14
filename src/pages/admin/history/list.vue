@@ -37,19 +37,23 @@
                 <div class="user-info-cell">
                   <el-avatar
                     :size="40"
-                    :src="scope.row.user_info?.avatar || scope.row.user_info?.avatar64 || ''"
+                    :src="scope.row.user_info?.avatar64 || ''"
                     :alt="scope.row.user_info?.nickname || '-'"
                   >
                     {{ (scope.row.user_info?.nickname || '匿').charAt(0) }}
                   </el-avatar>
                   <div class="user-details">
                     <div class="user-nickname">{{ scope.row.user_info?.nickname || '-' }}</div>
-                    <div class="user-uid">UID: {{ scope.row.uid }}</div>
+                    <div class="user-username">{{ scope.row.user_info?.username || '-' }}</div>
                   </div>
                 </div>
               </template>
             </el-table-column>
-            <el-table-column prop="module_name" label="模块" width="100" />
+            <el-table-column label="模块" width="100">
+              <template #default="scope">
+                {{ scope.row.app_info?.alias || '-' }}
+              </template>
+            </el-table-column>
             <el-table-column label="内容信息" min-width="280">
               <template #default="scope">
                 <div class="content-info-cell">
@@ -278,7 +282,7 @@ onMounted(() => {
         white-space: nowrap;
       }
 
-      .user-uid {
+      .user-username {
         font-size: 12px;
         color: #909399;
       }

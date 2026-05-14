@@ -161,7 +161,7 @@ import {
   deleteQueue,
   updateQueue,
   createQueue
-} from '@/api';
+} from '@/api/admin/queue';
 
 interface QueueItem {
   id: number;

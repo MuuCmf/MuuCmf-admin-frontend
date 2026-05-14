@@ -1,23 +1,14 @@
 <template>
-  <!-- 菜单/接口管理对话框 -->
-  <el-dialog
-    :model-value="props.visible"
-    title="应用权限菜单/接口管理"
-    :width="'82%'"
-    :fullscreen="false"
-    :center="true"
-    @update:model-value="handleDialogVisibleChange"
-    @close="handleClose"
-  >
-    <div v-loading="loading" class="menu-component">
-      <div class="menu-header">
-        <div v-if="menuList.length == 0" class="menu-toolbar">
-          <el-button type="primary" @click="handleAdd()">新增根菜单</el-button>
-        </div>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="menu-toolbar">
+        <el-button type="primary" @click="handleAdd()">新增根菜单</el-button>
       </div>
-      <div class="menu-content">
+    </div>
+    <div class="page-content">
+      <div class="with-container">
         <div class="menu-container">
-          <div class="menu-header-row">
+          <div class="menu-header">
             <div class="menu-header-icon"></div>
             <div class="menu-header-title">标题</div>
             <div class="menu-header-url">URL</div>
@@ -29,7 +20,7 @@
           </div>
           <template v-for="item in menuList" :key="item.id">
             <div class="menu-item level-1">
-              <div class="menu-content-row">
+              <div class="menu-content">
                 <div class="menu-icon">
                   <safe-icon :icon="item.icon" />
                 </div>
@@ -51,7 +42,7 @@
                 <div class="menu-children level-2">
                   <template v-for="child in item._child" :key="child.id">
                     <div class="menu-item level-2">
-                      <div class="menu-content-row">
+                      <div class="menu-content">
                         <div class="menu-icon">
                           <safe-icon :icon="child.icon" />
                         </div>
@@ -73,7 +64,7 @@
                         <div class="menu-children level-3">
                           <template v-for="grandchild in child._child" :key="grandchild.id">
                             <div class="menu-item level-3">
-                              <div class="menu-content-row">
+                              <div class="menu-content">
                                 <div class="menu-icon">
                                   <safe-icon v-if="grandchild.icon" :icon="grandchild.icon" />
                                 </div>
@@ -106,77 +97,46 @@
           </template>
         </div>
       </div>
-      <!-- 编辑菜单抽屉 -->
-      <ModuleMenuEditDrawer
+    </div>
+    <!-- 编辑菜单抽屉 -->
+    <el-drawer v-model="editDrawer" title="编辑菜单" :with-header="false" size="600px">
+      <menu-edit
         :menu="selectedMenu"
         :menu-list="menuList"
         :type="type"
         :module="module"
-        :visible="editDrawer"
         @close="editDrawer = false"
         @success="handleEditSuccess"
       />
-    </div>
-  </el-dialog>
+    </el-drawer>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import ModuleMenuEditDrawer from './ModuleMenuEditDrawer.vue';
-import { getModuleMenuList as fetchModuleMenuList, deleteModuleMenu } from '@/api/admin/module';
-import type { MenuItem } from '@/api/admin/module';
-
-// 组件属性
-interface Props {
-  appName: string;
-  visible: boolean;
-}
-
-// 事件
-interface Emits {
-  (e: 'close'): void;
-  (e: 'success'): void;
-  (e: 'update:visible', value: boolean): void;
-}
-
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
+import { useMenuStore } from '@/stores/modules/menu';
+import { useRouterStore } from '@/stores';
+import router, { resetRouter } from '@/router';
+import { cache } from '@/utils/modules/cache';
+import { getMenuList as fetchMenuList, deleteMenu } from '@/api/admin/menu';
+import MenuEdit from './components/edit.vue';
 
 // 响应式数据
 const loading = ref(false);
 const menuList = ref<MenuItem[]>([]);
 // 菜单类型 0: 系统 1: 应用
-const type = ref<number>(1);
+const type = ref<number>(0);
 const module = ref<string>('admin');
+
+// 菜单 store
+const menuStore = useMenuStore();
+// 路由 store
+const routerStore = useRouterStore();
 
 // 编辑菜单抽屉
 const editDrawer = ref(false);
 const selectedMenu = ref({} as MenuItem);
-
-// 监听visible和appName变化，控制数据加载
-watch(
-  () => [props.visible, props.appName],
-  ([newVisible, newAppName]) => {
-    if (newVisible && newAppName) {
-      getMenuList();
-    }
-  },
-  { immediate: true }
-);
-
-// 关闭对话框
-const handleClose = () => {
-  emit('close');
-};
-
-// 处理对话框可见性变化
-const handleDialogVisibleChange = (value: boolean) => {
-  emit('update:visible', value);
-  if (!value) {
-    handleClose();
-  }
-};
 
 // 添加菜单
 const handleAdd = (parent?: MenuItem) => {
@@ -189,10 +149,7 @@ const handleAdd = (parent?: MenuItem) => {
     } as MenuItem;
   } else {
     // 添加根菜单
-    selectedMenu.value = {
-      type: type.value,
-      module: module.value
-    } as MenuItem;
+    selectedMenu.value = {} as MenuItem;
   }
   editDrawer.value = true;
 };
@@ -207,6 +164,38 @@ const handleEdit = (item: MenuItem) => {
 const handleEditSuccess = async () => {
   // 重新获取列表确保数据最新
   getMenuList();
+
+  // 更新动态路由菜单
+  try {
+    // 1. 清除菜单缓存
+    cache('all_menu_data', '');
+
+    // 2. 重置动态路由
+    resetRouter();
+
+    // 3. 等待菜单数据加载完成（强制从服务器获取）
+    await menuStore.getAllMenuData();
+    const allMenusData = menuStore.allMenusData;
+
+    // 4. 重新生成动态路由
+    const dynamicRoutes = await routerStore.generateRoutes(allMenusData);
+
+    // 5. 添加动态路由
+    dynamicRoutes.forEach((route: any) => {
+      router.addRoute(route);
+    });
+
+    // 6. 标记已经加载过动态路由
+    routerStore.setHasLoadedDynamicRoutes(true);
+
+    // 7. 触发侧边栏更新
+    menuStore.asideNeedsUpdate++;
+
+    ElMessage.success('路由更新成功');
+  } catch (error) {
+    console.error('路由更新失败:', error);
+    ElMessage.error('路由更新失败');
+  }
 };
 
 // 删除菜单
@@ -218,11 +207,40 @@ const handleDelete = (item: MenuItem) => {
   })
     .then(async () => {
       try {
-        const res = await deleteModuleMenu(String(item.id));
+        const res = await deleteMenu(item.id);
 
         if (res.code === 200) {
           ElMessage.success('删除成功');
           getMenuList();
+
+          // 更新动态路由菜单
+          try {
+            // 1. 清除菜单缓存
+            cache('all_menu_data', null);
+
+            // 2. 重置动态路由
+            resetRouter();
+
+            // 3. 等待菜单数据加载完成（强制从服务器获取）
+            await menuStore.getAllMenuData(true);
+            const allMenusData = menuStore.allMenusData;
+
+            // 4. 重新生成动态路由
+            const dynamicRoutes = await routerStore.generateRoutes(allMenusData);
+
+            // 5. 添加动态路由
+            dynamicRoutes.forEach((route: any) => {
+              router.addRoute(route);
+            });
+
+            // 6. 标记已经加载过动态路由
+            routerStore.setHasLoadedDynamicRoutes(true);
+
+            // 7. 触发侧边栏更新
+            menuStore.asideNeedsUpdate++;
+          } catch (error) {
+            console.error('路由更新失败:', error);
+          }
         }
       } catch (error) {
         console.error('删除失败:', error);
@@ -234,109 +252,102 @@ const handleDelete = (item: MenuItem) => {
 
 // 获取菜单列表
 const getMenuList = () => {
-  if (!props.appName || !props.visible) return;
-
   loading.value = true;
-  fetchModuleMenuList(props.appName)
+  fetchMenuList()
     .then(res => {
       loading.value = false;
       menuList.value = res.data;
     })
     .catch(err => {
       console.error('获取菜单列表失败:', err);
-      loading.value = false;
     });
 };
+
+// 初始化获取菜单列表
+onMounted(() => {
+  getMenuList();
+});
 </script>
 
 <style lang="scss" scoped>
-.menu-component {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  max-height: 70vh; /* 限制组件最大高度为视口高度的70% */
-}
-
-.menu-header {
-  padding: 16px 0;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.menu-toolbar {
-  display: flex;
-  justify-content: flex-start;
-}
-
-.menu-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0;
-  max-height: 60vh; /* 限制最大高度为视口高度的60% */
-}
-
 .menu-container {
   width: 100%;
   background-color: var(--el-color-white);
+  border-radius: 6px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
   overflow: hidden;
 }
 
-.menu-header-row {
+.menu-toolbar {
+  background-color: var(--el-color-white);
+  padding: 16px 20px;
+}
+
+.menu-header {
   display: flex;
   align-items: center;
   padding: 10px 20px;
   background-color: #f5f7fa;
   border-bottom: 1px solid #e4e7ed;
+  border-top: 1px solid #e4e7ed;
   font-weight: 600;
   font-size: 14px;
   color: #666;
-}
 
-.menu-header-icon {
-  flex: 0 0 24px;
-}
+  &-icon {
+    flex: 0 0 24px;
+  }
 
-.menu-header-title {
-  flex: 0 0 200px;
-}
+  &-title {
+    flex: 0 0 240px;
+  }
 
-.menu-header-url {
-  flex: 0 0 250px;
-}
+  &-url {
+    flex: 0 0 300px;
+  }
 
-.menu-header-sort {
-  flex: 0 0 50px;
-}
+  &-sort {
+    flex: 0 0 50px;
+  }
 
-.menu-header-type {
-  flex: 0 0 80px;
-}
+  &-type {
+    flex: 0 0 80px;
+  }
 
-.menu-header-hide {
-  flex: 0 0 60px;
-}
+  &-hide {
+    flex: 0 0 60px;
+  }
 
-.menu-header-group {
-  flex: 0 0 100px;
-}
+  &-group {
+    flex: 0 0 100px;
+  }
 
-.menu-header-actions {
-  display: flex;
-  flex: 0 0 150px;
-  margin-left: auto;
-  justify-content: flex-end;
+  &-actions {
+    display: flex;
+    flex: 0 0 150px;
+    margin-left: auto;
+    justify-content: flex-end;
+  }
 }
 
 .menu-item {
   width: 100%;
   border-bottom: 1px solid #e4e7ed;
   transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #f5f7fa;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
-.menu-content-row {
+.menu-content {
   display: flex;
   align-items: center;
-  padding: 12px 20px;
+  padding: 16px 20px;
   gap: 20px;
 }
 
@@ -357,24 +368,24 @@ const getMenuList = () => {
 .level-1-title {
   font-weight: 600;
   font-size: 15px;
-  flex: 0 0 160px;
+  flex: 0 0 200px;
 }
 
 .level-2-title {
   font-weight: 500;
   font-size: 14px;
-  flex: 0 0 140px;
+  flex: 0 0 180px;
 }
 
 .level-3-title {
   font-weight: 400;
   font-size: 14px;
   color: #606266;
-  flex: 0 0 120px;
+  flex: 0 0 160px;
 }
 
 .menu-url {
-  flex: 0 0 220px;
+  flex: 0 0 280px;
   color: #909399;
   font-size: 13px;
   font-family: 'Courier New', monospace;
@@ -383,7 +394,9 @@ const getMenuList = () => {
   line-height: 1.5;
 }
 
-.menu-sort {
+.menu-sort,
+.menu-type,
+.menu-group {
   flex: 0 0 30px;
   color: #606266;
   font-size: 13px;
@@ -391,25 +404,21 @@ const getMenuList = () => {
 
 .menu-type {
   flex: 0 0 60px;
-  color: #606266;
-  font-size: 13px;
 }
 
 .menu-hide {
   flex: 0 0 40px;
   font-size: 13px;
-}
 
-.menu-hide span {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
+  span {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
 }
 
 .menu-group {
   flex: 0 0 80px;
-  color: #606266;
-  font-size: 13px;
 }
 
 .menu-actions {
@@ -417,34 +426,107 @@ const getMenuList = () => {
   display: flex;
   margin-left: auto;
   justify-content: flex-end;
-  gap: 8px;
 }
 
 .menu-children {
   padding-left: 0;
 }
 
-.level-2 {
-  padding-left: 10px;
-}
-
+.level-2,
 .level-3 {
   padding-left: 10px;
 }
 
-.level-3 .menu-content-row {
-  padding-left: 40px;
-}
-
-.level-2 .menu-content-row {
-  padding-left: 30px;
-}
-
-.level-1 .menu-content-row {
+.level-1 .menu-content {
   padding-left: 20px;
 }
 
-.menu-item:last-child {
-  border-bottom: none;
+.level-2 .menu-content {
+  padding-left: 30px;
+}
+
+.level-3 .menu-content {
+  padding-left: 40px;
+}
+
+html.dark {
+  .menu-container {
+    background-color: #262626;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  .menu-toolbar {
+    background-color: #262626;
+  }
+
+  .menu-header {
+    background-color: #333333;
+    border-bottom-color: #363636;
+    border-top-color: #363636;
+    color: #e5e5e5;
+  }
+
+  .menu-item {
+    border-bottom-color: #363636;
+
+    &:hover {
+      background-color: #333333;
+    }
+  }
+
+  .menu-title {
+    color: #e5e5e5;
+  }
+
+  .level-3-title {
+    color: #b8b8b8;
+  }
+
+  .menu-url {
+    color: #9ca3af;
+  }
+
+  .menu-sort,
+  .menu-type,
+  .menu-hide,
+  .menu-group {
+    color: #b8b8b8;
+  }
+
+  .el-tag {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #363636;
+    color: #e5e5e5;
+
+    &--info {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-color: #363636;
+      color: #e5e5e5;
+    }
+  }
+
+  .el-button {
+    &--primary {
+      background-color: var(--el-color-primary);
+      border-color: var(--el-color-primary);
+      color: #fff;
+    }
+
+    &--warning {
+      background-color: #e6a23c;
+      border-color: #e6a23c;
+      color: #fff;
+    }
+
+    &--danger {
+      background-color: #f56c6c;
+      border-color: #f56c6c;
+      color: #fff;
+    }
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 }
 </style>

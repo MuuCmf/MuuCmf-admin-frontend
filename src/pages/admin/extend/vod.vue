@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { getExtendList, saveExtendVod } from '@/api';
+import { getExtendList, saveExtendVod } from '@/api/admin/extend';
 import {
   Num,
   String,

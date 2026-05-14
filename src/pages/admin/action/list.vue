@@ -83,7 +83,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import ActionDrawer from './components/ActionDrawer.vue';
 import type { ActionItem } from './types';
-import { getActionList, updateActionStatus } from '@/api';
+import { getActionList, updateActionStatus } from '@/api/admin/action';
 
 // 响应式数据
 const loading = ref(false);

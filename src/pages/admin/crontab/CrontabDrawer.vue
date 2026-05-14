@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { ref, watch, computed, nextTick } from 'vue';
 import { ElMessage } from 'element-plus';
-import { editCrontab, type CrontabItem } from '@/api';
+import { editCrontab, type CrontabItem } from '@/api/admin/crontab';
 
 interface Props {
   visible: boolean;

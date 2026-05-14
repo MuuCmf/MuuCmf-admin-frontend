@@ -76,7 +76,7 @@ import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import SafeIcon from '@/components/SafeIcon.vue';
 import CrontabDrawer from './CrontabDrawer.vue';
-import { getCrontabList, updateCrontabStatus, type CrontabItem } from '@/api';
+import { getCrontabList, updateCrontabStatus, type CrontabItem } from '@/api/admin/crontab';
 
 const page = ref(1);
 const rows = ref(20);

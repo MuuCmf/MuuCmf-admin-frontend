@@ -85,8 +85,7 @@ import { ref, reactive, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { Search } from '@element-plus/icons-vue';
 import LimitDrawer from './components/LimitDrawer.vue';
-import { getLimitList, updateLimitStatus } from '@/api';
-import type { LimitItem } from '@/api';
+import { getLimitList, updateLimitStatus, type LimitItem } from '@/api/admin/action';
 
 const loading = ref(false);
 const tableData = ref<LimitItem[]>([]);

@@ -3,7 +3,7 @@ import { useRouter, useRoute } from 'vue-router';
 import { useUserInfoStore, useRouterStore } from '@/stores';
 import { ElMessage } from 'element-plus';
 import { isPhone, isEmail } from '@/utils/modules/validate';
-import { login as loginApi, sendVerifyCode as sendVerifyCodeApi, logout as logoutApi } from '@/api';
+import { login as loginApi, sendVerifyCode as sendVerifyCodeApi, logout as logoutApi } from '@/api/common';
 
 /**
  * 认证状态管理 Composable

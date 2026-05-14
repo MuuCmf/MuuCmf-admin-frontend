@@ -23,7 +23,7 @@ export const getMemberList = async (params: { page: number; rows: number; keywor
     queryParams.keyword = params.keyword;
   }
   const res = await request({
-    url: 'admin/member/index',
+    url: 'admin/member/list',
     method: 'GET',
     params: queryParams
   });

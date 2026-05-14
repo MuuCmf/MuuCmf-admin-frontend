@@ -108,9 +108,9 @@ const getUserList = async () => {
   loading.value = true;
   try {
     const response = await request({
-      url: 'admin/member/index',
+      url: 'admin/member/list',
       method: 'GET',
-      data: {
+      params: {
         page: page.value,
         rows: rows.value,
         keyword: searchKeyword.value

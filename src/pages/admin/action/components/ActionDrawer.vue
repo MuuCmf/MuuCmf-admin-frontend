@@ -67,8 +67,9 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { editAction, getScoreTypeList as fetchScoreTypeList } from '@/api';
-import type { RuleItem, ActionItem } from '@/api';
+import { editAction } from '@/api/admin/action';
+import { getScoreTypeList as fetchScoreTypeList } from '@/api/admin/score';
+import type { RuleItem, ActionItem } from '@/api/admin/action';
 
 // Props
 const props = defineProps<{

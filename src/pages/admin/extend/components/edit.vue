@@ -76,7 +76,7 @@
 import { ref, reactive, watch, computed } from 'vue';
 import { Close } from '@element-plus/icons-vue';
 import { ElMessage } from 'element-plus';
-import { editExtend } from '@/api';
+import { editExtend } from '@/api/admin/extend';
 import { typeOptions } from '@/utils/modules/config';
 
 interface Props {

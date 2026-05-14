@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { cache } from '@/utils/modules/cache';
 import { CACHE_EXPIRATION } from '@/constants/cache';
 import defaultSettings from '@/settings';
-import { getMenuTree } from '@/api';
+import { getMenuTree } from '@/api/admin/menu';
 
 /**
  * 导航菜单状态管理

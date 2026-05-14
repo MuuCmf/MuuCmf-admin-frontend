@@ -9,9 +9,26 @@ export const getMessageList = async (params: {
   status?: string;
   is_read?: string;
 }) => {
+  const queryParams: Record<string, any> = {
+    page: params.page,
+    rows: params.rows
+  };
+  if (params.keyword !== undefined && params.keyword !== '') {
+    queryParams.keyword = params.keyword;
+  }
+  if (params.type_id !== undefined && params.type_id !== '') {
+    queryParams.type_id = params.type_id;
+  }
+  if (params.status !== undefined && params.status !== '' && params.status !== 'all') {
+    queryParams.status = params.status;
+  }
+  if (params.is_read !== undefined && params.is_read !== '') {
+    queryParams.is_read = params.is_read;
+  }
+
   const res = await request({
     url: 'admin/message/list',
-    params,
+    params: queryParams,
     method: 'GET'
   });
   return res;

@@ -37,8 +37,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
-import { request } from '@/utils/modules/request';
 import Pic from '@/components/config/Pic.vue';
+import { editModule } from '@/api/admin/module';
 
 interface Props {
   visible: boolean;
@@ -105,11 +105,7 @@ const handleSubmit = async () => {
 
     loading.value = true;
     try {
-      const res = await request({
-        url: 'admin/module/edit',
-        method: 'POST',
-        data: formData.value
-      });
+      const res = await editModule(formData.value);
       if (res.code === 200) {
         ElMessage.success('编辑成功');
         emit('update:visible', false);

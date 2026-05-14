@@ -180,7 +180,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getMessageList, getMessageTypes, updateMessageStatus } from '@/api';
+import { getMessageList, getMessageTypes, updateMessageStatus } from '@/api/admin/message';
 import MessageSend from '@/components/MessageSend.vue';
 
 // 消息数据类型

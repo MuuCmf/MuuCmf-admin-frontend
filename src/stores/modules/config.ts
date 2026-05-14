@@ -1,7 +1,7 @@
 import { ref, watch } from 'vue';
 import { defineStore } from 'pinia';
 import { cache } from '@/utils/modules/cache';
-import { getSystemConfig, getMicroServiceConfig } from '@/api';
+import { getSystemConfig, getMicroServiceConfig } from '@/api/common';
 
 /**
  * 系统配置状态管理

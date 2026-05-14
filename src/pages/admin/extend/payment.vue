@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue';
 import { ElMessage } from 'element-plus';
-import { getExtendList, saveExtendPayment } from '@/api';
+import { getExtendList, saveExtendPayment } from '@/api/admin/extend';
 import {
   Num,
   String,

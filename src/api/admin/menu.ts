@@ -25,9 +25,9 @@ export const getMenuTree = async (app: string = 'admin') => {
  * @description 调用后端接口获取菜单列表数据
  * @returns 返回后端接口响应数据，包含菜单列表
  */
-export const getMenuIndex = async () => {
-  const res = await request({
-    url: 'admin/menu/index',
+export const getMenuList = async () => {
+  const res = await request<MenuItem[]>({
+    url: 'admin/menu/list',
     method: 'GET'
   });
   return res;

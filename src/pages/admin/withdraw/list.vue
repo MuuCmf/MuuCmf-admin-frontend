@@ -42,10 +42,16 @@
               <el-table-column label="用户信息" min-width="180">
                 <template #default="scope">
                   <div class="user-info-cell">
-                    <img :src="scope.row.user_info?.avatar64 || defaultAvatar" class="user-avatar" />
+                    <el-avatar
+                      :size="36"
+                      :src="scope.row.user_info?.avatar64 || ''"
+                      :alt="scope.row.user_info?.nickname"
+                    >
+                      {{ (scope.row.user_info?.nickname || '匿').charAt(0) }}
+                    </el-avatar>
                     <div class="user-details">
                       <div class="user-nickname">{{ scope.row.user_info?.nickname || '-' }}</div>
-                      <div class="user-uid">ID: {{ scope.row.uid }}</div>
+                      <div class="user-username">{{ scope.row.user_info?.username || '-' }}</div>
                     </div>
                   </div>
                 </template>
@@ -127,33 +133,15 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { request } from '@/utils/modules/request';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import SafeIcon from '@/components/SafeIcon.vue';
-
-const defaultAvatar = 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png';
-
-interface WithdrawItem {
-  id: number;
-  uid: number;
-  order_no: string;
-  price: number;
-  channel: string;
-  pay_channel: string;
-  paid: number;
-  paid_str: string;
-  status_str: string;
-  create_time?: number;
-  create_time_str?: string;
-  paid_time?: number;
-  paid_time_str?: string;
-  user_info?: {
-    uid: number;
-    nickname: string;
-    avatar: string;
-    avatar64?: string;
-  };
-}
+import {
+  getWithdrawList,
+  getWithdrawDetail,
+  processWithdraw,
+  cancelWithdraw,
+  type WithdrawItem
+} from '@/api/admin/withdraw';
 
 const page = ref(1);
 const rows = ref(20);
@@ -170,14 +158,10 @@ const currentDetail = ref<WithdrawItem | null>(null);
 const getList = async () => {
   loading.value = true;
   try {
-    const res = await request({
-      url: 'admin/withdraw/list',
-      method: 'GET',
-      data: {
-        page: page.value,
-        rows: rows.value,
-        ...searchForm.value
-      }
+    const res = await getWithdrawList({
+      page: page.value,
+      rows: rows.value,
+      order_no: searchForm.value.order_no
     });
     if (res.code === 200) {
       lists.value = res.data.data || [];
@@ -221,13 +205,7 @@ const getStatusType = (paid: number) => {
 
 const handleViewDetail = async (row: WithdrawItem) => {
   try {
-    const res = await request({
-      url: 'admin/withdraw/detail',
-      method: 'GET',
-      data: {
-        id: row.id
-      }
-    });
+    const res = await getWithdrawDetail(row.id);
     if (res.code === 200) {
       currentDetail.value = res.data;
       detailVisible.value = true;
@@ -248,13 +226,7 @@ const handleProcess = (id: number) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/withdraw/action',
-          method: 'POST',
-          data: {
-            id: id
-          }
-        });
+        const res = await processWithdraw(id);
         if (res.code === 200) {
           ElMessage.success('处理成功');
           getList();
@@ -277,13 +249,7 @@ const handleCancel = (id: number) => {
   })
     .then(async () => {
       try {
-        const res = await request({
-          url: 'admin/withdraw/cancel',
-          method: 'POST',
-          data: {
-            id: id
-          }
-        });
+        const res = await cancelWithdraw(id);
         if (res.code === 200) {
           ElMessage.success('取消成功');
           getList();
@@ -310,11 +276,7 @@ const handleBatchProcess = () => {
   })
     .then(async () => {
       const promises = selectedIds.value.map(id => {
-        return request({
-          url: 'admin/withdraw/action',
-          method: 'POST',
-          data: { id }
-        });
+        return processWithdraw(id);
       });
 
       try {
@@ -338,11 +300,7 @@ const handleBatchCancel = () => {
   })
     .then(async () => {
       const promises = selectedIds.value.map(id => {
-        return request({
-          url: 'admin/withdraw/cancel',
-          method: 'POST',
-          data: { id }
-        });
+        return cancelWithdraw(id);
       });
 
       try {
@@ -430,7 +388,7 @@ onMounted(() => {
         white-space: nowrap;
       }
 
-      .user-uid {
+      .user-name {
         font-size: 12px;
         color: #909399;
       }

@@ -85,8 +85,8 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, onUnmounted, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import { request } from '@/utils/modules/request';
 import IconSelector from '@/components/IconSelector.vue';
+import { editModuleMenu, type MenuItem } from '@/api/admin/module';
 
 // 组件属性
 interface Props {
@@ -226,11 +226,7 @@ const handleSubmit = async () => {
         submitData.id = formData.id;
       }
 
-      const res = await request({
-        url: 'admin/module/menu/edit',
-        method: 'POST',
-        data: submitData
-      });
+      const res = await editModuleMenu(submitData);
 
       if (res.code === 200) {
         ElMessage.success(isEdit.value ? '保存成功' : '新增成功');

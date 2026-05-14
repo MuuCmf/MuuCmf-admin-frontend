@@ -52,8 +52,8 @@
 import { ref, watch } from 'vue';
 import { ElMessage } from 'element-plus';
 import { Warning } from '@element-plus/icons-vue';
-import { request } from '@/utils/modules/request';
 import { appDataInterface } from '@/pages/admin/module/type';
+import { uninstallModule } from '@/api/admin/module';
 
 interface Props {
   visible: boolean;
@@ -112,11 +112,7 @@ const handleSubmit = async () => {
 
     loading.value = true;
     try {
-      const res = await request({
-        url: 'admin/module/uninstall',
-        method: 'POST',
-        data: formData.value
-      });
+      const res = await uninstallModule(formData.value);
       if (res.code === 200) {
         ElMessage.success('卸载成功');
         emit('update:visible', false);
